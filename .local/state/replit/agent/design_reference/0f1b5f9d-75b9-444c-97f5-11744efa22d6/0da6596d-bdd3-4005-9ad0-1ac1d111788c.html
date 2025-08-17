@@ -1,0 +1,938 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamShare - Premium Video Streaming Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'space-blue': '#0B1426',
+                        'dark-navy': '#1A1D29',
+                        'electric-purple': '#8B5FBF',
+                        'electric-cyan': '#00D9FF',
+                        'neon-green': '#39FF14',
+                        'bright-purple': '#A855F7',
+                    },
+                    backdropBlur: {
+                        'xs': '2px',
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0B1426 0%, #1A1D29 50%, #2D1B69 100%);
+            overflow-x: hidden;
+        }
+
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .gradient-border {
+            background: linear-gradient(135deg, #8B5FBF, #00D9FF);
+            padding: 2px;
+            border-radius: 12px;
+        }
+
+        .gradient-border-content {
+            background: #1A1D29;
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        /* StreamShare Logo Animation */
+        .logo-container {
+            position: relative;
+            font-size: 2rem;
+            font-weight: 700;
+            color: transparent;
+            background: linear-gradient(90deg, #8B5FBF, #00D9FF, #39FF14);
+            background-clip: text;
+            -webkit-background-clip: text;
+        }
+
+        .logo-letter {
+            display: inline-block;
+            opacity: 0;
+            animation: revealLetter 0.5s ease-in-out forwards;
+        }
+
+        @keyframes revealLetter {
+            from {
+                opacity: 0;
+                transform: translateY(20px) rotateX(90deg);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
+            }
+        }
+
+        .logo-letter:nth-child(11) { animation-delay: 0s; } /* e */
+        .logo-letter:nth-child(10) { animation-delay: 0.1s; } /* r */
+        .logo-letter:nth-child(9) { animation-delay: 0.2s; } /* a */
+        .logo-letter:nth-child(8) { animation-delay: 0.3s; } /* h */
+        .logo-letter:nth-child(7) { animation-delay: 0.4s; } /* S */
+        .logo-letter:nth-child(6) { animation-delay: 0.5s; } /* m */
+        .logo-letter:nth-child(5) { animation-delay: 0.6s; } /* a */
+        .logo-letter:nth-child(4) { animation-delay: 0.7s; } /* e */
+        .logo-letter:nth-child(3) { animation-delay: 0.8s; } /* r */
+        .logo-letter:nth-child(2) { animation-delay: 0.9s; } /* t */
+        .logo-letter:nth-child(1) { animation-delay: 1.0s; } /* S */
+
+        /* Sidebar Animations */
+        .sidebar {
+            width: 80px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .sidebar:hover {
+            width: 280px;
+        }
+
+        .sidebar-content {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .sidebar:hover .sidebar-content {
+            opacity: 1;
+        }
+
+        /* Stream Card Hover Effects */
+        .stream-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stream-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(139, 95, 191, 0.3);
+        }
+
+        /* Category Badge Animation */
+        .category-badge {
+            transition: all 0.3s ease;
+        }
+
+        .category-badge:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+        }
+
+        .category-badge.active {
+            background: linear-gradient(45deg, #39FF14, #00D9FF);
+            color: #000;
+        }
+
+        /* Modal Animation */
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Pulse Animation for Live Indicator */
+        .live-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(57, 255, 20, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(57, 255, 20, 0); }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #8B5FBF, #00D9FF);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+    <!-- Main Layout Container -->
+    <div class="flex h-screen">
+        
+        <!-- Retractable Sidebar -->
+        <div class="sidebar fixed left-0 top-0 h-full glassmorphism z-50 flex flex-col">
+            <div class="p-4 border-b border-white border-opacity-20">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-r from-electric-purple to-electric-cyan flex items-center justify-center">
+                    <i class="fas fa-user text-white text-xl"></i>
+                </div>
+                <div class="sidebar-content mt-3">
+                    <h3 class="font-semibold text-white" data-bind="user.username">Alex_Creator</h3>
+                    <p class="text-sm text-gray-300" data-bind="user.level">Level 15 Streamer</p>
+                </div>
+            </div>
+            
+            <!-- Coins Balance -->
+            <div class="p-4 border-b border-white border-opacity-20">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-coins text-neon-green text-xl"></i>
+                    <div class="sidebar-content">
+                        <p class="text-sm text-gray-300">StreamCoins</p>
+                        <p class="font-bold text-neon-green text-lg" data-bind="user.coins">2,450</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-4">
+                <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-home text-xl w-6"></i>
+                    <span class="sidebar-content">Discover</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-play-circle text-xl w-6"></i>
+                    <span class="sidebar-content">My Streams</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-heart text-xl w-6"></i>
+                    <span class="sidebar-content">Following</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-history text-xl w-6"></i>
+                    <span class="sidebar-content">History</span>
+                </a>
+                <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-white hover:bg-opacity-10 transition-colors">
+                    <i class="fas fa-wallet text-xl w-6"></i>
+                    <span class="sidebar-content">Transactions</span>
+                </a>
+            </nav>
+            
+            <!-- Bottom Actions -->
+            <div class="p-4 space-y-3">
+                <button class="w-full bg-gradient-to-r from-electric-purple to-electric-cyan text-white py-2 px-4 rounded-lg font-semibold hover:shadow-lg transition-all">
+                    <i class="fas fa-plus mr-2"></i>
+                    <span class="sidebar-content">Start Stream</span>
+                </button>
+                <button class="w-full bg-gradient-to-r from-neon-green to-electric-cyan text-black py-2 px-4 rounded-lg font-semibold hover:shadow-lg transition-all">
+                    <i class="fas fa-coins mr-2"></i>
+                    <span class="sidebar-content">Buy Coins</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 ml-20 overflow-y-auto">
+            
+            <!-- Top Header -->
+            <header class="glassmorphism border-b border-white border-opacity-20 p-6 sticky top-0 z-40">
+                <div class="flex items-center justify-between">
+                    <!-- Animated StreamShare Logo -->
+                    <div class="logo-container">
+                        <span class="logo-letter">S</span>
+                        <span class="logo-letter">t</span>
+                        <span class="logo-letter">r</span>
+                        <span class="logo-letter">e</span>
+                        <span class="logo-letter">a</span>
+                        <span class="logo-letter">m</span>
+                        <span class="logo-letter">S</span>
+                        <span class="logo-letter">h</span>
+                        <span class="logo-letter">a</span>
+                        <span class="logo-letter">r</span>
+                        <span class="logo-letter">e</span>
+                    </div>
+                    
+                    <!-- Search Bar -->
+                    <div class="flex-1 max-w-2xl mx-8">
+                        <div class="relative">
+                            <input type="text" placeholder="Search creators, genres, or live streams..." 
+                                   class="w-full bg-white bg-opacity-10 border border-white border-opacity-20 rounded-full py-3 px-6 pl-12 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-electric-purple">
+                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-300"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- User Profile -->
+                    <div class="flex items-center space-x-4">
+                        <button class="relative p-2 text-gray-300 hover:text-white transition-colors">
+                            <i class="fas fa-bell text-xl"></i>
+                            <span class="absolute -top-1 -right-1 bg-neon-green text-black text-xs rounded-full w-5 h-5 flex items-center justify-center">3</span>
+                        </button>
+                        <button onclick="toggleProfileModal()" class="flex items-center space-x-3 hover:bg-white hover:bg-opacity-10 rounded-lg p-2 transition-colors">
+                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=80&h=80" 
+                                 alt="User Profile" class="w-10 h-10 rounded-full">
+                            <div class="text-left">
+                                <p class="font-semibold" data-bind="user.displayName">Alex Thompson</p>
+                                <p class="text-sm text-gray-300" data-bind="user.role">Premium Creator</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Genre Categories -->
+            <div class="p-6 border-b border-white border-opacity-10">
+                <div class="flex space-x-4 overflow-x-auto pb-4">
+                    <button class="category-badge active glassmorphism px-6 py-3 rounded-full whitespace-nowrap font-semibold" onclick="filterByGenre('all')">
+                        <i class="fas fa-globe mr-2"></i>All Streams
+                    </button>
+                    <button class="category-badge glassmorphism px-6 py-3 rounded-full whitespace-nowrap font-semibold" onclick="filterByGenre('gaming')">
+                        <i class="fas fa-gamepad mr-2"></i>Gaming
+                    </button>
+                    <button class="category-badge glassmorphism px-6 py-3 rounded-full whitespace-nowrap font-semibold" onclick="filterByGenre('music')">
+                        <i class="fas fa-music mr-2"></i>Music & Audio
+                    </button>
+                    <button class="category-badge glassmorphism px-6 py-3 rounded-full whitespace-nowrap font-semibold" onclick="filterByGenre('education')">
+                        <i class="fas fa-graduation-cap mr-2"></i>Education
+                    </button>
+                    <button class="category-badge glassmorphism px-6 py-3 rounded-full whitespace-nowrap font-semibold" onclick="filterByGenre('technology')">
+                        <i class="fas fa-laptop-code mr-2"></i>Technology
+                    </button>
+                    <button class="category-badge glassmorphism px-6 py-3 rounded-full whitespace-nowrap font-semibold" onclick="filterByGenre('lifestyle')">
+                        <i class="fas fa-heart mr-2"></i>Lifestyle
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Stream Grid -->
+            <main class="p-6">
+                
+                <!-- Featured Stream -->
+                <section class="mb-12">
+                    <h2 class="text-3xl font-bold mb-6 bg-gradient-to-r from-electric-purple to-electric-cyan bg-clip-text text-transparent">
+                        Featured Live Stream
+                    </h2>
+                    <div class="gradient-border mb-8">
+                        <div class="gradient-border-content">
+                            <div class="grid lg:grid-cols-2 gap-8 items-center">
+                                <div class="relative group">
+                                    <!-- High-tech gaming setup with multiple monitors and RGB lighting -->
+                                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=450" 
+                                         alt="Featured gaming stream setup" class="w-full h-64 lg:h-80 object-cover rounded-lg">
+                                    <div class="absolute top-4 left-4 flex items-center space-x-2">
+                                        <span class="live-pulse bg-neon-green text-black px-3 py-1 rounded-full text-sm font-bold">LIVE</span>
+                                        <span class="glassmorphism px-3 py-1 rounded-full text-sm">
+                                            <i class="fas fa-eye mr-1"></i>
+                                            <span data-bind="stream.viewerCount">12,847</span>
+                                        </span>
+                                    </div>
+                                    <div class="absolute bottom-4 right-4 glassmorphism px-3 py-1 rounded-full text-sm font-semibold">
+                                        <i class="fas fa-coins text-neon-green mr-1"></i>
+                                        <span data-bind="stream.cost">25 coins</span>
+                                    </div>
+                                </div>
+                                <div class="space-y-4">
+                                    <h3 class="text-2xl font-bold" data-bind="stream.title">Pro Gaming Tournament - Finals</h3>
+                                    <p class="text-gray-300" data-bind="stream.description">Join the most intense esports tournament finals featuring top players from around the world. Experience high-level gameplay with professional commentary and exclusive behind-the-scenes content.</p>
+                                    <div class="flex items-center space-x-4">
+                                        <!-- Professional esports player in gaming chair -->
+                                        <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=60&h=60" 
+                                             alt="GameMaster Pro avatar" class="w-12 h-12 rounded-full">
+                                        <div>
+                                            <p class="font-semibold" data-bind="stream.creator.name">GameMaster Pro</p>
+                                            <p class="text-sm text-gray-300">
+                                                <span data-bind="stream.creator.followers">2.3M</span> followers • Gaming
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button onclick="joinStream('featured')" class="w-full bg-gradient-to-r from-electric-purple to-electric-cyan text-white py-3 px-6 rounded-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105">
+                                        <i class="fas fa-play mr-2"></i>Join Stream (25 coins)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stream Grid -->
+                <section>
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold">Discover Streams</h2>
+                        <div class="flex space-x-4">
+                            <select class="bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg px-4 py-2 text-white">
+                                <option>Most Popular</option>
+                                <option>Recently Started</option>
+                                <option>Lowest Price</option>
+                                <option>Highest Price</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        
+                        <!-- Stream Card 1 -->
+                        <div class="stream-card glassmorphism rounded-xl overflow-hidden group" data-genre="music">
+                            <div class="relative">
+                                <!-- Live music performance with stage lighting -->
+                                <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=240" 
+                                     alt="Live music performance" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3 flex items-center space-x-2">
+                                    <span class="live-pulse bg-neon-green text-black px-2 py-1 rounded-full text-xs font-bold">LIVE</span>
+                                    <span class="glassmorphism px-2 py-1 rounded-full text-xs">
+                                        <i class="fas fa-eye mr-1"></i>3.2K
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3 glassmorphism px-2 py-1 rounded-full text-xs font-semibold">
+                                    <i class="fas fa-coins text-neon-green mr-1"></i>15
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-2 line-clamp-2">Acoustic Evening Sessions</h3>
+                                <div class="flex items-center space-x-2 mb-3">
+                                    <!-- Musician with acoustic guitar -->
+                                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=40&h=40" 
+                                         alt="MelodyMaker avatar" class="w-8 h-8 rounded-full">
+                                    <div>
+                                        <p class="text-sm font-medium">MelodyMaker</p>
+                                        <p class="text-xs text-gray-300">Music</p>
+                                    </div>
+                                </div>
+                                <button onclick="joinStream('music1')" class="w-full bg-gradient-to-r from-electric-purple to-electric-cyan text-white py-2 px-4 rounded-lg text-sm font-semibold hover:shadow-lg transition-all">
+                                    Join (15 coins)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stream Card 2 -->
+                        <div class="stream-card glassmorphism rounded-xl overflow-hidden group" data-genre="education">
+                            <div class="relative">
+                                <!-- Modern classroom or online teaching setup -->
+                                <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=240" 
+                                     alt="Educational live stream" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3 flex items-center space-x-2">
+                                    <span class="live-pulse bg-neon-green text-black px-2 py-1 rounded-full text-xs font-bold">LIVE</span>
+                                    <span class="glassmorphism px-2 py-1 rounded-full text-xs">
+                                        <i class="fas fa-eye mr-1"></i>892
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3 glassmorphism px-2 py-1 rounded-full text-xs font-semibold">
+                                    <i class="fas fa-coins text-neon-green mr-1"></i>10
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-2 line-clamp-2">Python Masterclass</h3>
+                                <div class="flex items-center space-x-2 mb-3">
+                                    <!-- Professional educator or programmer -->
+                                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=40&h=40" 
+                                         alt="CodeGuru avatar" class="w-8 h-8 rounded-full">
+                                    <div>
+                                        <p class="text-sm font-medium">CodeGuru</p>
+                                        <p class="text-xs text-gray-300">Education</p>
+                                    </div>
+                                </div>
+                                <button onclick="joinStream('education1')" class="w-full bg-gradient-to-r from-electric-purple to-electric-cyan text-white py-2 px-4 rounded-lg text-sm font-semibold hover:shadow-lg transition-all">
+                                    Join (10 coins)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stream Card 3 -->
+                        <div class="stream-card glassmorphism rounded-xl overflow-hidden group" data-genre="gaming">
+                            <div class="relative">
+                                <!-- Retro gaming setup with classic arcade machines -->
+                                <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=240" 
+                                     alt="Retro gaming stream" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3 flex items-center space-x-2">
+                                    <span class="live-pulse bg-neon-green text-black px-2 py-1 rounded-full text-xs font-bold">LIVE</span>
+                                    <span class="glassmorphism px-2 py-1 rounded-full text-xs">
+                                        <i class="fas fa-eye mr-1"></i>5.7K
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3 glassmorphism px-2 py-1 rounded-full text-xs font-semibold">
+                                    <i class="fas fa-coins text-neon-green mr-1"></i>20
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-2 line-clamp-2">Retro Gaming Night</h3>
+                                <div class="flex items-center space-x-2 mb-3">
+                                    <!-- Gaming enthusiast with retro aesthetic -->
+                                    <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=40&h=40" 
+                                         alt="RetroGamer avatar" class="w-8 h-8 rounded-full">
+                                    <div>
+                                        <p class="text-sm font-medium">RetroGamer</p>
+                                        <p class="text-xs text-gray-300">Gaming</p>
+                                    </div>
+                                </div>
+                                <button onclick="joinStream('gaming1')" class="w-full bg-gradient-to-r from-electric-purple to-electric-cyan text-white py-2 px-4 rounded-lg text-sm font-semibold hover:shadow-lg transition-all">
+                                    Join (20 coins)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stream Card 4 -->
+                        <div class="stream-card glassmorphism rounded-xl overflow-hidden group" data-genre="lifestyle">
+                            <div class="relative">
+                                <!-- Modern kitchen with cooking ingredients and utensils -->
+                                <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=240" 
+                                     alt="Cooking live stream" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3 flex items-center space-x-2">
+                                    <span class="live-pulse bg-neon-green text-black px-2 py-1 rounded-full text-xs font-bold">LIVE</span>
+                                    <span class="glassmorphism px-2 py-1 rounded-full text-xs">
+                                        <i class="fas fa-eye mr-1"></i>1.4K
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3 glassmorphism px-2 py-1 rounded-full text-xs font-semibold">
+                                    <i class="fas fa-coins text-neon-green mr-1"></i>12
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-2 line-clamp-2">Gourmet Cooking Class</h3>
+                                <div class="flex items-center space-x-2 mb-3">
+                                    <!-- Professional chef in modern kitchen -->
+                                    <img src="https://images.unsplash.com/photo-1583394293214-28ded15ee548?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=40&h=40" 
+                                         alt="ChefMaster avatar" class="w-8 h-8 rounded-full">
+                                    <div>
+                                        <p class="text-sm font-medium">ChefMaster</p>
+                                        <p class="text-xs text-gray-300">Lifestyle</p>
+                                    </div>
+                                </div>
+                                <button onclick="joinStream('lifestyle1')" class="w-full bg-gradient-to-r from-electric-purple to-electric-cyan text-white py-2 px-4 rounded-lg text-sm font-semibold hover:shadow-lg transition-all">
+                                    Join (12 coins)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stream Card 5 -->
+                        <div class="stream-card glassmorphism rounded-xl overflow-hidden group" data-genre="technology">
+                            <div class="relative">
+                                <!-- Tech workspace with multiple monitors and gadgets -->
+                                <img src="https://pixabay.com/get/g61f71ba2a138e46d57d9883048c88737ebc63ce234650697d5191374f6603801abdbfc20997d2477d9a553388864751ed04b193670248dbc4dda8a7ecdb9bc42_1280.jpg" 
+                                     alt="Tech review live stream" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3 flex items-center space-x-2">
+                                    <span class="live-pulse bg-neon-green text-black px-2 py-1 rounded-full text-xs font-bold">LIVE</span>
+                                    <span class="glassmorphism px-2 py-1 rounded-full text-xs">
+                                        <i class="fas fa-eye mr-1"></i>2.1K
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3 glassmorphism px-2 py-1 rounded-full text-xs font-semibold">
+                                    <i class="fas fa-coins text-neon-green mr-1"></i>18
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-2 line-clamp-2">Latest Tech Reviews</h3>
+                                <div class="flex items-center space-x-2 mb-3">
+                                    <!-- Tech reviewer with modern setup -->
+                                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=40&h=40" 
+                                         alt="TechReviewer avatar" class="w-8 h-8 rounded-full">
+                                    <div>
+                                        <p class="text-sm font-medium">TechReviewer</p>
+                                        <p class="text-xs text-gray-300">Technology</p>
+                                    </div>
+                                </div>
+                                <button onclick="joinStream('tech1')" class="w-full bg-gradient-to-r from-electric-purple to-electric-cyan text-white py-2 px-4 rounded-lg text-sm font-semibold hover:shadow-lg transition-all">
+                                    Join (18 coins)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stream Card 6 -->
+                        <div class="stream-card glassmorphism rounded-xl overflow-hidden group" data-genre="music">
+                            <div class="relative">
+                                <!-- Electronic music production studio with DJ equipment -->
+                                <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=240" 
+                                     alt="Electronic music production stream" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3 flex items-center space-x-2">
+                                    <span class="live-pulse bg-neon-green text-black px-2 py-1 rounded-full text-xs font-bold">LIVE</span>
+                                    <span class="glassmorphism px-2 py-1 rounded-full text-xs">
+                                        <i class="fas fa-eye mr-1"></i>4.5K
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3 glassmorphism px-2 py-1 rounded-full text-xs font-semibold">
+                                    <i class="fas fa-coins text-neon-green mr-1"></i>22
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-2 line-clamp-2">Electronic Music Production</h3>
+                                <div class="flex items-center space-x-2 mb-3">
+                                    <!-- Electronic music producer with headphones -->
+                                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=40&h=40" 
+                                         alt="BeatMaker avatar" class="w-8 h-8 rounded-full">
+                                    <div>
+                                        <p class="text-sm font-medium">BeatMaker</p>
+                                        <p class="text-xs text-gray-300">Music</p>
+                                    </div>
+                                </div>
+                                <button onclick="joinStream('music2')" class="w-full bg-gradient-to-r from-electric-purple to-electric-cyan text-white py-2 px-4 rounded-lg text-sm font-semibold hover:shadow-lg transition-all">
+                                    Join (22 coins)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stream Card 7 -->
+                        <div class="stream-card glassmorphism rounded-xl overflow-hidden group" data-genre="gaming">
+                            <div class="relative">
+                                <!-- Mobile gaming setup with smartphone and controller -->
+                                <img src="https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=240" 
+                                     alt="Mobile gaming stream" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3 flex items-center space-x-2">
+                                    <span class="live-pulse bg-neon-green text-black px-2 py-1 rounded-full text-xs font-bold">LIVE</span>
+                                    <span class="glassmorphism px-2 py-1 rounded-full text-xs">
+                                        <i class="fas fa-eye mr-1"></i>8.3K
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3 glassmorphism px-2 py-1 rounded-full text-xs font-semibold">
+                                    <i class="fas fa-coins text-neon-green mr-1"></i>16
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-2 line-clamp-2">Mobile Gaming Tournament</h3>
+                                <div class="flex items-center space-x-2 mb-3">
+                                    <!-- Mobile gaming enthusiast -->
+                                    <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=40&h=40" 
+                                         alt="MobileGamer avatar" class="w-8 h-8 rounded-full">
+                                    <div>
+                                        <p class="text-sm font-medium">MobileGamer</p>
+                                        <p class="text-xs text-gray-300">Gaming</p>
+                                    </div>
+                                </div>
+                                <button onclick="joinStream('gaming2')" class="w-full bg-gradient-to-r from-electric-purple to-electric-cyan text-white py-2 px-4 rounded-lg text-sm font-semibold hover:shadow-lg transition-all">
+                                    Join (16 coins)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Stream Card 8 -->
+                        <div class="stream-card glassmorphism rounded-xl overflow-hidden group" data-genre="education">
+                            <div class="relative">
+                                <!-- Art studio with canvases and painting supplies -->
+                                <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=240" 
+                                     alt="Art tutorial live stream" class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3 flex items-center space-x-2">
+                                    <span class="live-pulse bg-neon-green text-black px-2 py-1 rounded-full text-xs font-bold">LIVE</span>
+                                    <span class="glassmorphism px-2 py-1 rounded-full text-xs">
+                                        <i class="fas fa-eye mr-1"></i>673
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3 glassmorphism px-2 py-1 rounded-full text-xs font-semibold">
+                                    <i class="fas fa-coins text-neon-green mr-1"></i>14
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <h3 class="font-semibold mb-2 line-clamp-2">Digital Art Masterclass</h3>
+                                <div class="flex items-center space-x-2 mb-3">
+                                    <!-- Digital artist with creative workspace -->
+                                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=40&h=40" 
+                                         alt="ArtMaster avatar" class="w-8 h-8 rounded-full">
+                                    <div>
+                                        <p class="text-sm font-medium">ArtMaster</p>
+                                        <p class="text-xs text-gray-300">Education</p>
+                                    </div>
+                                </div>
+                                <button onclick="joinStream('education2')" class="w-full bg-gradient-to-r from-electric-purple to-electric-cyan text-white py-2 px-4 rounded-lg text-sm font-semibold hover:shadow-lg transition-all">
+                                    Join (14 coins)
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="glassmorphism max-w-4xl w-full mx-4 rounded-2xl overflow-hidden">
+            <div class="relative">
+                <!-- User profile banner background -->
+                <div class="h-32 bg-gradient-to-r from-electric-purple via-electric-cyan to-neon-green"></div>
+                <button onclick="toggleProfileModal()" class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+                <div class="absolute bottom-0 left-6 transform translate-y-1/2">
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=120&h=120" 
+                         alt="User Profile" class="w-24 h-24 rounded-full border-4 border-white">
+                </div>
+            </div>
+            
+            <div class="pt-16 p-6">
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- Profile Info -->
+                    <div class="md:col-span-2">
+                        <h2 class="text-2xl font-bold mb-2" data-bind="user.displayName">Alex Thompson</h2>
+                        <p class="text-gray-300 mb-4" data-bind="user.bio">Premium creator and tech enthusiast. Streaming since 2019 with a passion for bringing quality content to the community.</p>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="glassmorphism p-4 rounded-lg">
+                                <p class="text-sm text-gray-300">Total Streams</p>
+                                <p class="text-2xl font-bold text-electric-cyan" data-bind="user.stats.totalStreams">342</p>
+                            </div>
+                            <div class="glassmorphism p-4 rounded-lg">
+                                <p class="text-sm text-gray-300">Followers</p>
+                                <p class="text-2xl font-bold text-neon-green" data-bind="user.stats.followers">15.7K</p>
+                            </div>
+                            <div class="glassmorphism p-4 rounded-lg">
+                                <p class="text-sm text-gray-300">Total Views</p>
+                                <p class="text-2xl font-bold text-electric-purple" data-bind="user.stats.totalViews">2.1M</p>
+                            </div>
+                            <div class="glassmorphism p-4 rounded-lg">
+                                <p class="text-sm text-gray-300">Avg Rating</p>
+                                <p class="text-2xl font-bold text-neon-green" data-bind="user.stats.rating">4.8⭐</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Account Info -->
+                    <div class="space-y-4">
+                        <div class="glassmorphism p-4 rounded-lg">
+                            <h3 class="font-semibold mb-3 text-electric-cyan">Account Balance</h3>
+                            <div class="flex items-center justify-between mb-2">
+                                <span>StreamCoins</span>
+                                <span class="font-bold text-neon-green" data-bind="user.coins">2,450</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Premium Status</span>
+                                <span class="text-electric-purple font-semibold">Active</span>
+                            </div>
+                        </div>
+                        
+                        <div class="glassmorphism p-4 rounded-lg">
+                            <h3 class="font-semibold mb-3 text-electric-cyan">Recent Activity</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span>Stream: "Tech Review"</span>
+                                    <span class="text-neon-green">+125 coins</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Joined: Gaming Stream</span>
+                                    <span class="text-red-400">-25 coins</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>Coins Purchase</span>
+                                    <span class="text-neon-green">+500 coins</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transaction History -->
+                <div class="mt-6">
+                    <h3 class="text-xl font-semibold mb-4 text-electric-cyan">Transaction History</h3>
+                    <div class="glassmorphism rounded-lg overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-white bg-opacity-5">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left">Date</th>
+                                        <th class="px-4 py-3 text-left">Type</th>
+                                        <th class="px-4 py-3 text-left">Description</th>
+                                        <th class="px-4 py-3 text-right">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-white divide-opacity-10">
+                                    <tr data-mock="true">
+                                        <td class="px-4 py-3 text-sm">2024-01-15</td>
+                                        <td class="px-4 py-3 text-sm">
+                                            <span class="bg-neon-green text-black px-2 py-1 rounded-full text-xs">Earned</span>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm">Tech Review Stream</td>
+                                        <td class="px-4 py-3 text-sm text-right text-neon-green">+125</td>
+                                    </tr>
+                                    <tr data-mock="true">
+                                        <td class="px-4 py-3 text-sm">2024-01-14</td>
+                                        <td class="px-4 py-3 text-sm">
+                                            <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs">Spent</span>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm">Joined Gaming Tournament</td>
+                                        <td class="px-4 py-3 text-sm text-right text-red-400">-25</td>
+                                    </tr>
+                                    <tr data-mock="true">
+                                        <td class="px-4 py-3 text-sm">2024-01-13</td>
+                                        <td class="px-4 py-3 text-sm">
+                                            <span class="bg-electric-purple text-white px-2 py-1 rounded-full text-xs">Purchase</span>
+                                        </td>
+                                        <td class="px-4 py-3 text-sm">Coin Package - Premium</td>
+                                        <td class="px-4 py-3 text-sm text-right text-neon-green">+500</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stream Room Modal (Example) -->
+    <div id="streamModal" class="modal fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="w-full h-full max-w-6xl mx-4 rounded-2xl overflow-hidden glassmorphism">
+            <div class="h-full flex flex-col">
+                <!-- Stream Header -->
+                <div class="flex items-center justify-between p-4 border-b border-white border-opacity-20">
+                    <div class="flex items-center space-x-4">
+                        <h3 class="text-xl font-bold">Pro Gaming Tournament - Finals</h3>
+                        <span class="live-pulse bg-neon-green text-black px-3 py-1 rounded-full text-sm font-bold">LIVE</span>
+                        <span class="glassmorphism px-3 py-1 rounded-full text-sm">
+                            <i class="fas fa-eye mr-1"></i>12,847 viewers
+                        </span>
+                    </div>
+                    <button onclick="closeStream()" class="text-white hover:text-gray-300 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Main Stream Content -->
+                <div class="flex-1 flex">
+                    <!-- Video Player Area -->
+                    <div class="flex-1 bg-black rounded-lg m-4 mr-2 relative">
+                        <!-- Professional esports tournament setup -->
+                        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1200&h=675" 
+                             alt="Live stream video" class="w-full h-full object-cover rounded-lg">
+                        
+                        <!-- Stream Controls Overlay -->
+                        <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <button class="glassmorphism p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                                <button class="glassmorphism p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <button class="glassmorphism p-2 rounded-full hover:bg-white hover:bg-opacity-20 transition-colors">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Sidebar -->
+                    <div class="w-80 glassmorphism m-4 ml-2 rounded-lg flex flex-col">
+                        <!-- Chat Header -->
+                        <div class="p-4 border-b border-white border-opacity-20">
+                            <h4 class="font-semibold">Live Chat</h4>
+                            <p class="text-sm text-gray-300">12,847 participants</p>
+                        </div>
+                        
+                        <!-- Chat Messages -->
+                        <div class="flex-1 p-4 overflow-y-auto space-y-3" data-mock="true">
+                            <div class="flex items-start space-x-2">
+                                <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=30&h=30" 
+                                     alt="User avatar" class="w-6 h-6 rounded-full">
+                                <div>
+                                    <p class="text-sm"><span class="font-semibold text-electric-cyan">ProGamer123:</span> Amazing gameplay!</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-2">
+                                <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=30&h=30" 
+                                     alt="User avatar" class="w-6 h-6 rounded-full">
+                                <div>
+                                    <p class="text-sm"><span class="font-semibold text-neon-green">EliteViewer:</span> That combo was insane! 🔥</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-2">
+                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=30&h=30" 
+                                     alt="User avatar" class="w-6 h-6 rounded-full">
+                                <div>
+                                    <p class="text-sm"><span class="font-semibold text-electric-purple">StreamFan:</span> Worth every coin!</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Chat Input -->
+                        <div class="p-4 border-t border-white border-opacity-20">
+                            <div class="relative">
+                                <input type="text" placeholder="Type a message..." 
+                                       class="w-full bg-white bg-opacity-10 border border-white border-opacity-20 rounded-lg py-2 px-4 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-electric-purple">
+                                <button class="absolute right-2 top-1/2 transform -translate-y-1/2 text-electric-cyan hover:text-white transition-colors">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Profile Modal Toggle
+            window.toggleProfileModal = function() {
+                const modal = document.getElementById('profileModal');
+                modal.classList.toggle('active');
+            };
+
+            // Genre Filtering
+            window.filterByGenre = function(genre) {
+                const badges = document.querySelectorAll('.category-badge');
+                const cards = document.querySelectorAll('.stream-card');
+                
+                // Update active badge
+                badges.forEach(badge => badge.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                // Filter cards
+                cards.forEach(card => {
+                    if (genre === 'all' || card.dataset.genre === genre) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            };
+
+            // Stream Joining
+            window.joinStream = function(streamId) {
+                // TODO: Implement coin deduction logic
+                // TODO: Implement WebRTC connection logic
+                // TODO: Show stream modal
+                const modal = document.getElementById('streamModal');
+                modal.classList.add('active');
+                console.log(`Joining stream: ${streamId}`);
+            };
+
+            // Close Stream
+            window.closeStream = function() {
+                // TODO: Disconnect from stream
+                // TODO: Clean up WebRTC connections
+                const modal = document.getElementById('streamModal');
+                modal.classList.remove('active');
+            };
+
+            // Close modals when clicking outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('active');
+                }
+            });
+
+            // Prevent modal close when clicking inside modal content
+            document.querySelectorAll('.modal > div').forEach(modalContent => {
+                modalContent.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            });
+
+            // Initialize app
+            console.log('StreamShare initialized');
+            
+            // TODO: Initialize WebRTC connections
+            // TODO: Connect to Socket.IO server
+            // TODO: Load user data from API
+            // TODO: Set up real-time chat functionality
+        })();
+    </script>
+
+</body>
+</html>

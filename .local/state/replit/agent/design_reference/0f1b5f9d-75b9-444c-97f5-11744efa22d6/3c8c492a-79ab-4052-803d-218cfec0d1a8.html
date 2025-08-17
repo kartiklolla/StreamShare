@@ -1,0 +1,633 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamShare - Live Streaming Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'electric-blue': '#00BFFF',
+                        'deep-blue': '#1E90FF',
+                        'vibrant-purple': '#8A2BE2',
+                        'royal-purple': '#9932CC',
+                        'dark-bg': '#0A0A0B',
+                        'darker-bg': '#121212',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-neon': 'pulse-neon 2s ease-in-out infinite alternate',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'reveal': 'reveal 3s ease-out forwards',
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes pulse-neon {
+            from { box-shadow: 0 0 5px #00BFFF, 0 0 10px #00BFFF, 0 0 15px #00BFFF; }
+            to { box-shadow: 0 0 10px #00BFFF, 0 0 20px #00BFFF, 0 0 30px #00BFFF; }
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 5px #8A2BE2, 0 0 10px #8A2BE2; }
+            to { text-shadow: 0 0 10px #8A2BE2, 0 0 20px #8A2BE2, 0 0 30px #8A2BE2; }
+        }
+        @keyframes reveal {
+            0% { opacity: 0; transform: translateX(50px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .neon-border { border: 1px solid transparent; background: linear-gradient(45deg, #00BFFF, #8A2BE2) border-box; }
+        .neon-glow:hover { box-shadow: 0 0 20px rgba(0, 191, 255, 0.5), 0 0 40px rgba(138, 43, 226, 0.3); }
+        .sidebar-collapsed { width: 60px; }
+        .sidebar-expanded { width: 280px; }
+        .stream-card:hover { transform: translateY(-5px); transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-dark-bg text-white font-inter overflow-x-hidden">
+
+    <!-- @COMPONENT: TopNavigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-darker-bg/95 backdrop-blur-sm border-b border-electric-blue/20">
+        <div class="flex items-center justify-between px-6 py-4">
+            <!-- Dashboard Menu Icon -->
+            <div class="flex items-center space-x-4">
+                <button id="menuToggle" class="p-2 rounded-lg bg-gradient-to-r from-electric-blue to-vibrant-purple hover:from-electric-blue/80 hover:to-vibrant-purple/80 transition-all neon-glow">
+                    <i class="fas fa-th-large text-white"></i>
+                </button>
+                
+                <!-- Animated StreamShare Logo -->
+                <div class="flex items-center space-x-2">
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-electric-blue via-vibrant-purple to-electric-blue bg-clip-text text-transparent animate-glow">
+                        StreamShare
+                    </h1>
+                </div>
+            </div>
+
+            <!-- User Profile & Coins -->
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 bg-darker-bg/80 px-4 py-2 rounded-full border border-electric-blue/30">
+                    <i class="fas fa-coins text-yellow-400"></i>
+                    <span class="font-semibold" data-bind="user.coins">2,450</span>
+                    <span class="text-electric-blue text-sm">Coins</span>
+                </div>
+                <button id="profileBtn" class="w-10 h-10 rounded-full bg-gradient-to-r from-electric-blue to-vibrant-purple p-0.5 neon-glow">
+                    <!-- Profile image placeholder -->
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&w=100&h=100&fit=crop&crop=face" alt="User Profile" class="w-full h-full rounded-full object-cover" data-mock="true">
+                </button>
+            </div>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: TopNavigation -->
+
+    <!-- @COMPONENT: RetractableSidebar -->
+    <div id="sidebar" class="fixed left-0 top-16 bottom-0 bg-darker-bg/95 backdrop-blur-sm border-r border-electric-blue/20 transition-all duration-300 sidebar-collapsed z-40">
+        <div class="p-4 space-y-4">
+            <div class="sidebar-content">
+                <h3 class="text-lg font-semibold text-electric-blue mb-4 sidebar-text">Quick Access</h3>
+                
+                <!-- Navigation Links -->
+                <nav class="space-y-3">
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-electric-blue/10 transition-colors">
+                        <i class="fas fa-home text-electric-blue w-5"></i>
+                        <span class="sidebar-text">Home</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-electric-blue/10 transition-colors">
+                        <i class="fas fa-fire text-vibrant-purple w-5"></i>
+                        <span class="sidebar-text">Trending</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-electric-blue/10 transition-colors">
+                        <i class="fas fa-star text-yellow-400 w-5"></i>
+                        <span class="sidebar-text">Subscriptions</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-electric-blue/10 transition-colors">
+                        <i class="fas fa-history text-gray-400 w-5"></i>
+                        <span class="sidebar-text">History</span>
+                    </a>
+                </nav>
+
+                <!-- Coin Management Section -->
+                <div class="mt-8">
+                    <h4 class="text-sm font-semibold text-vibrant-purple mb-3 sidebar-text">Coin Management</h4>
+                    <div class="space-y-2">
+                        <button class="w-full flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-r from-electric-blue/20 to-vibrant-purple/20 hover:from-electric-blue/30 hover:to-vibrant-purple/30 transition-all">
+                            <i class="fas fa-plus text-green-400 w-5"></i>
+                            <span class="sidebar-text">Buy Coins</span>
+                        </button>
+                        <button class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-electric-blue/10 transition-colors">
+                            <i class="fas fa-chart-line text-electric-blue w-5"></i>
+                            <span class="sidebar-text">Transactions</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: RetractableSidebar -->
+
+    <!-- @COMPONENT: MainContent -->
+    <main id="mainContent" class="transition-all duration-300 pt-20 pl-16">
+        <div class="p-6">
+            <!-- Genre Filter Tabs -->
+            <div class="mb-8">
+                <div class="flex flex-wrap gap-3">
+                    <button class="px-6 py-2 rounded-full bg-gradient-to-r from-electric-blue to-vibrant-purple text-white font-semibold neon-glow">All</button>
+                    <button class="px-6 py-2 rounded-full border border-electric-blue/30 hover:bg-electric-blue/10 transition-colors">Gaming</button>
+                    <button class="px-6 py-2 rounded-full border border-electric-blue/30 hover:bg-electric-blue/10 transition-colors">Music</button>
+                    <button class="px-6 py-2 rounded-full border border-electric-blue/30 hover:bg-electric-blue/10 transition-colors">Art</button>
+                    <button class="px-6 py-2 rounded-full border border-electric-blue/30 hover:bg-electric-blue/10 transition-colors">Tech</button>
+                    <button class="px-6 py-2 rounded-full border border-electric-blue/30 hover:bg-electric-blue/10 transition-colors">Education</button>
+                </div>
+            </div>
+
+            <!-- Featured Stream -->
+            <div class="mb-8">
+                <div class="relative rounded-xl overflow-hidden border border-electric-blue/30 neon-glow">
+                    <!-- Featured stream thumbnail showcasing live gaming content -->
+                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&w=1200&h=400&fit=crop" alt="Featured gaming stream with neon setup" class="w-full h-64 object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                    <div class="absolute bottom-6 left-6 right-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="inline-block px-3 py-1 bg-red-500 text-white text-sm font-semibold rounded-full mb-2">LIVE</span>
+                                <h2 class="text-2xl font-bold mb-2" data-bind="featuredStream.title">Epic Gaming Marathon - 24HR Stream!</h2>
+                                <p class="text-gray-300 mb-3" data-bind="featuredStream.creator">by ProGamer_XY</p>
+                                <div class="flex items-center space-x-4 text-sm">
+                                    <span><i class="fas fa-eye text-electric-blue"></i> <span data-bind="featuredStream.viewers">12,847</span> watching</span>
+                                    <span><i class="fas fa-coins text-yellow-400"></i> <span data-bind="featuredStream.cost">50</span> coins</span>
+                                </div>
+                            </div>
+                            <button class="px-8 py-3 bg-gradient-to-r from-electric-blue to-vibrant-purple rounded-lg font-semibold hover:scale-105 transition-transform neon-glow">
+                                Join Stream
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stream Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- @MAP: streams.map(stream => ( -->
+                
+                <!-- Stream Card 1 -->
+                <div class="stream-card bg-darker-bg rounded-xl border border-electric-blue/20 overflow-hidden hover:border-electric-blue/50 transition-all neon-glow">
+                    <!-- Gaming stream with colorful RGB setup -->
+                    <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&w=400&h=250&fit=crop" alt="Gaming stream with RGB lighting setup" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-2 py-1 bg-red-500 text-white text-xs rounded">LIVE</span>
+                            <span class="text-electric-blue text-sm"><i class="fas fa-eye"></i> 3.2K</span>
+                        </div>
+                        <h3 class="font-semibold mb-1" data-bind="stream.title" data-mock="true">Competitive Gaming Session</h3>
+                        <p class="text-gray-400 text-sm mb-3" data-bind="stream.creator" data-mock="true">GamerPro_2024</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-coins text-yellow-400"></i>
+                                <span data-bind="stream.cost" data-mock="true">25 coins</span>
+                            </div>
+                            <button class="px-4 py-2 bg-gradient-to-r from-electric-blue to-vibrant-purple rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
+                                Join
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stream Card 2 -->
+                <div class="stream-card bg-darker-bg rounded-xl border border-electric-blue/20 overflow-hidden hover:border-electric-blue/50 transition-all neon-glow">
+                    <!-- Music production stream with professional audio equipment -->
+                    <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&w=400&h=250&fit=crop" alt="Music production stream with audio mixing equipment" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-2 py-1 bg-red-500 text-white text-xs rounded">LIVE</span>
+                            <span class="text-electric-blue text-sm"><i class="fas fa-eye"></i> 1.8K</span>
+                        </div>
+                        <h3 class="font-semibold mb-1" data-bind="stream.title" data-mock="true">Live Music Production</h3>
+                        <p class="text-gray-400 text-sm mb-3" data-bind="stream.creator" data-mock="true">BeatMaker_Studios</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-coins text-yellow-400"></i>
+                                <span data-bind="stream.cost" data-mock="true">30 coins</span>
+                            </div>
+                            <button class="px-4 py-2 bg-gradient-to-r from-electric-blue to-vibrant-purple rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
+                                Join
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stream Card 3 -->
+                <div class="stream-card bg-darker-bg rounded-xl border border-electric-blue/20 overflow-hidden hover:border-electric-blue/50 transition-all neon-glow">
+                    <!-- Digital art creation stream with creative workspace -->
+                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&w=400&h=250&fit=crop" alt="Digital art creation stream with drawing tablet" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-2 py-1 bg-red-500 text-white text-xs rounded">LIVE</span>
+                            <span class="text-electric-blue text-sm"><i class="fas fa-eye"></i> 892</span>
+                        </div>
+                        <h3 class="font-semibold mb-1" data-bind="stream.title" data-mock="true">Digital Art Creation</h3>
+                        <p class="text-gray-400 text-sm mb-3" data-bind="stream.creator" data-mock="true">ArtisticVision</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-coins text-yellow-400"></i>
+                                <span data-bind="stream.cost" data-mock="true">20 coins</span>
+                            </div>
+                            <button class="px-4 py-2 bg-gradient-to-r from-electric-blue to-vibrant-purple rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
+                                Join
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stream Card 4 -->
+                <div class="stream-card bg-darker-bg rounded-xl border border-electric-blue/20 overflow-hidden hover:border-electric-blue/50 transition-all neon-glow">
+                    <!-- Tech tutorial stream with modern coding setup -->
+                    <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&w=400&h=250&fit=crop" alt="Tech tutorial stream with coding and development setup" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="px-2 py-1 bg-red-500 text-white text-xs rounded">LIVE</span>
+                            <span class="text-electric-blue text-sm"><i class="fas fa-eye"></i> 2.1K</span>
+                        </div>
+                        <h3 class="font-semibold mb-1" data-bind="stream.title" data-mock="true">Web Development Tutorial</h3>
+                        <p class="text-gray-400 text-sm mb-3" data-bind="stream.creator" data-mock="true">CodeMaster_Dev</p>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-coins text-yellow-400"></i>
+                                <span data-bind="stream.cost" data-mock="true">35 coins</span>
+                            </div>
+                            <button class="px-4 py-2 bg-gradient-to-r from-electric-blue to-vibrant-purple rounded-lg text-sm font-semibold hover:scale-105 transition-transform">
+                                Join
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- @END_MAP )) -->
+            </div>
+
+            <!-- Creator Dashboard Section -->
+            <div class="mt-12">
+                <h2 class="text-2xl font-bold mb-6 text-electric-blue">Creator Dashboard Preview</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Stream Analytics Card -->
+                    <div class="bg-darker-bg rounded-xl border border-electric-blue/20 p-6 neon-glow">
+                        <!-- Creator analytics dashboard with streaming metrics -->
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&w=500&h=200&fit=crop" alt="Creator analytics dashboard showing streaming metrics" class="w-full h-32 object-cover rounded-lg mb-4">
+                        <h3 class="text-lg font-semibold mb-3">Stream Analytics</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-electric-blue" data-bind="analytics.totalViewers" data-mock="true">12.5K</div>
+                                <div class="text-sm text-gray-400">Total Viewers</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-vibrant-purple" data-bind="analytics.totalEarnings" data-mock="true">8,750</div>
+                                <div class="text-sm text-gray-400">Coins Earned</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Start Stream Card -->
+                    <div class="bg-darker-bg rounded-xl border border-electric-blue/20 p-6 neon-glow">
+                        <!-- Creator streaming setup with professional equipment -->
+                        <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?ixlib=rb-4.0.3&w=500&h=200&fit=crop" alt="Professional streaming setup with camera and microphone equipment" class="w-full h-32 object-cover rounded-lg mb-4">
+                        <h3 class="text-lg font-semibold mb-3">Start New Stream</h3>
+                        <form class="space-y-3">
+                            <input type="text" placeholder="Stream Title" class="w-full p-3 bg-dark-bg border border-electric-blue/30 rounded-lg focus:border-electric-blue outline-none">
+                            <select class="w-full p-3 bg-dark-bg border border-electric-blue/30 rounded-lg focus:border-electric-blue outline-none">
+                                <option>Gaming</option>
+                                <option>Music</option>
+                                <option>Art</option>
+                                <option>Tech</option>
+                                <option>Education</option>
+                            </select>
+                            <input type="number" placeholder="Cost in Coins" class="w-full p-3 bg-dark-bg border border-electric-blue/30 rounded-lg focus:border-electric-blue outline-none">
+                            <button type="submit" class="w-full py-3 bg-gradient-to-r from-electric-blue to-vibrant-purple rounded-lg font-semibold hover:scale-105 transition-transform neon-glow">
+                                <i class="fas fa-video mr-2"></i>Go Live
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Token System Demo -->
+            <div class="mt-12">
+                <h2 class="text-2xl font-bold mb-6 text-vibrant-purple">Token System Interface</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Coin Purchase Options -->
+                    <div class="bg-darker-bg rounded-xl border border-electric-blue/20 p-6 neon-glow">
+                        <!-- Digital cryptocurrency interface with coin graphics -->
+                        <img src="https://images.unsplash.com/photo-1639762681485-074b7f938ba0?ixlib=rb-4.0.3&w=400&h=150&fit=crop" alt="Digital cryptocurrency and coin purchase interface" class="w-full h-24 object-cover rounded-lg mb-4">
+                        <h3 class="text-lg font-semibold mb-3">Coin Packages</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 border border-electric-blue/20 rounded-lg">
+                                <span>100 Coins</span>
+                                <span class="text-electric-blue font-semibold">$9.99</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 border border-vibrant-purple/20 rounded-lg bg-vibrant-purple/10">
+                                <span>500 Coins</span>
+                                <span class="text-vibrant-purple font-semibold">$39.99</span>
+                                <span class="text-xs bg-yellow-400 text-black px-2 py-1 rounded">POPULAR</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 border border-electric-blue/20 rounded-lg">
+                                <span>1000 Coins</span>
+                                <span class="text-electric-blue font-semibold">$74.99</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Transaction History -->
+                    <div class="bg-darker-bg rounded-xl border border-electric-blue/20 p-6 neon-glow">
+                        <!-- Digital payment transaction history interface -->
+                        <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&w=400&h=150&fit=crop" alt="Digital payment and transaction history interface" class="w-full h-24 object-cover rounded-lg mb-4">
+                        <h3 class="text-lg font-semibold mb-3">Recent Transactions</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="flex justify-between items-center p-2 border-l-2 border-red-500 pl-3">
+                                <div>
+                                    <div class="font-medium" data-mock="true">Gaming Stream</div>
+                                    <div class="text-gray-400" data-mock="true">2 hours ago</div>
+                                </div>
+                                <div class="text-red-400" data-mock="true">-50 coins</div>
+                            </div>
+                            <div class="flex justify-between items-center p-2 border-l-2 border-green-500 pl-3">
+                                <div>
+                                    <div class="font-medium" data-mock="true">Coin Purchase</div>
+                                    <div class="text-gray-400" data-mock="true">Yesterday</div>
+                                </div>
+                                <div class="text-green-400" data-mock="true">+500 coins</div>
+                            </div>
+                            <div class="flex justify-between items-center p-2 border-l-2 border-red-500 pl-3">
+                                <div>
+                                    <div class="font-medium" data-mock="true">Music Stream</div>
+                                    <div class="text-gray-400" data-mock="true">2 days ago</div>
+                                </div>
+                                <div class="text-red-400" data-mock="true">-30 coins</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Balance & Stats -->
+                    <div class="bg-darker-bg rounded-xl border border-electric-blue/20 p-6 neon-glow">
+                        <!-- Digital wallet and balance interface with cryptocurrency elements -->
+                        <img src="https://images.unsplash.com/photo-1640161704729-cbe966a08476?ixlib=rb-4.0.3&w=400&h=150&fit=crop" alt="Digital wallet interface showing balance and cryptocurrency statistics" class="w-full h-24 object-cover rounded-lg mb-4">
+                        <h3 class="text-lg font-semibold mb-3">Wallet Overview</h3>
+                        <div class="space-y-4">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-yellow-400 mb-1" data-bind="wallet.currentBalance" data-mock="true">2,450</div>
+                                <div class="text-sm text-gray-400">Current Coins</div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 text-center">
+                                <div>
+                                    <div class="text-xl font-bold text-electric-blue" data-bind="wallet.totalSpent" data-mock="true">1,280</div>
+                                    <div class="text-xs text-gray-400">Total Spent</div>
+                                </div>
+                                <div>
+                                    <div class="text-xl font-bold text-vibrant-purple" data-bind="wallet.totalStreams" data-mock="true">47</div>
+                                    <div class="text-xs text-gray-400">Streams Joined</div>
+                                </div>
+                            </div>
+                            <button class="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg font-semibold hover:scale-105 transition-transform">
+                                <i class="fas fa-plus mr-2"></i>Add Coins
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!-- @END_COMPONENT: MainContent -->
+
+    <!-- @COMPONENT: ProfileModal -->
+    <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-darker-bg rounded-xl border border-electric-blue/30 p-8 max-w-md w-full mx-4 neon-glow">
+            <div class="text-center">
+                <div class="w-24 h-24 rounded-full bg-gradient-to-r from-electric-blue to-vibrant-purple p-1 mx-auto mb-4">
+                    <!-- User profile image for modal display -->
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&w=200&h=200&fit=crop&crop=face" alt="User Profile" class="w-full h-full rounded-full object-cover" data-mock="true">
+                </div>
+                <h2 class="text-2xl font-bold mb-2" data-bind="user.username" data-mock="true">StreamUser_2024</h2>
+                <p class="text-gray-400 mb-6" data-bind="user.email" data-mock="true">user@streamshare.com</p>
+                
+                <!-- User Stats -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="text-center">
+                        <div class="text-xl font-bold text-electric-blue" data-bind="user.totalWatched" data-mock="true">127</div>
+                        <div class="text-sm text-gray-400">Streams Watched</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-xl font-bold text-vibrant-purple" data-bind="user.coinsSpent" data-mock="true">3,450</div>
+                        <div class="text-sm text-gray-400">Coins Spent</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <button class="w-full py-3 bg-gradient-to-r from-electric-blue to-vibrant-purple rounded-lg font-semibold hover:scale-105 transition-transform">
+                        Edit Profile
+                    </button>
+                    <button class="w-full py-3 border border-electric-blue/30 rounded-lg font-semibold hover:bg-electric-blue/10 transition-colors">
+                        View History
+                    </button>
+                    <button id="closeProfile" class="w-full py-3 border border-red-500/30 rounded-lg font-semibold hover:bg-red-500/10 transition-colors text-red-400">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: ProfileModal -->
+
+    <!-- @COMPONENT: StreamRoomModal (Example) -->
+    <div id="streamModal" class="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-darker-bg rounded-xl border border-electric-blue/30 w-full h-full max-w-6xl max-h-[90vh] mx-4 flex flex-col neon-glow">
+            <!-- Stream Header -->
+            <div class="flex items-center justify-between p-6 border-b border-electric-blue/20">
+                <div>
+                    <h2 class="text-xl font-bold" data-bind="stream.title" data-mock="true">Epic Gaming Marathon - Live Now!</h2>
+                    <p class="text-gray-400" data-bind="stream.creator" data-mock="true">by ProGamer_XY</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="px-3 py-1 bg-red-500 rounded-full text-sm font-semibold">LIVE</span>
+                    <span class="text-electric-blue"><i class="fas fa-eye"></i> <span data-bind="stream.viewers" data-mock="true">12,847</span></span>
+                    <button id="closeStream" class="p-2 hover:bg-red-500/20 rounded-lg transition-colors text-red-400">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stream Content -->
+            <div class="flex-1 flex">
+                <!-- Video Player Area -->
+                <div class="flex-1 p-6">
+                    <div class="bg-black rounded-xl aspect-video flex items-center justify-center border border-electric-blue/20">
+                        <!-- Live gaming stream with intense action and colorful effects -->
+                        <img src="https://images.unsplash.com/photo-1560253023-3ec5d502959f?ixlib=rb-4.0.3&w=800&h=450&fit=crop" alt="Live gaming stream with intense action and colorful gaming effects" class="w-full h-full object-cover rounded-xl">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <!-- @FUNCTIONALITY: This should be replaced with actual WebRTC video player -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="w-80 border-l border-electric-blue/20 flex flex-col">
+                    <div class="p-4 border-b border-electric-blue/20">
+                        <h3 class="font-semibold text-electric-blue">Live Chat</h3>
+                    </div>
+                    
+                    <!-- Chat Messages -->
+                    <div class="flex-1 p-4 space-y-3 overflow-y-auto">
+                        <div class="flex space-x-3" data-mock="true">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-electric-blue to-vibrant-purple flex-shrink-0"></div>
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-semibold text-sm">User123</span>
+                                    <span class="text-xs text-gray-400">2m ago</span>
+                                </div>
+                                <div class="text-sm">Amazing gameplay! 🎮</div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3" data-mock="true">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-r from-vibrant-purple to-electric-blue flex-shrink-0"></div>
+                            <div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-semibold text-sm">StreamFan99</span>
+                                    <span class="text-xs text-gray-400">1m ago</span>
+                                </div>
+                                <div class="text-sm">How did you pull off that move?</div>
+                            </div>
+                        </div>
+                        <!-- @STATE: messages:array should contain chat messages -->
+                        <!-- @FUNCTIONALITY: Real-time chat using Socket.IO -->
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="p-4 border-t border-electric-blue/20">
+                        <div class="flex space-x-2">
+                            <input type="text" placeholder="Type a message..." class="flex-1 p-2 bg-dark-bg border border-electric-blue/30 rounded-lg focus:border-electric-blue outline-none text-sm">
+                            <button class="p-2 bg-gradient-to-r from-electric-blue to-vibrant-purple rounded-lg hover:scale-105 transition-transform">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: StreamRoomModal -->
+
+    <script>
+        (function() {
+            // DOM elements
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const profileBtn = document.getElementById('profileBtn');
+            const profileModal = document.getElementById('profileModal');
+            const closeProfile = document.getElementById('closeProfile');
+            const streamModal = document.getElementById('streamModal');
+            const closeStream = document.getElementById('closeStream');
+
+            let sidebarExpanded = false;
+
+            // Sidebar toggle functionality
+            menuToggle?.addEventListener('click', function() {
+                sidebarExpanded = !sidebarExpanded;
+                
+                if (sidebarExpanded) {
+                    sidebar.classList.remove('sidebar-collapsed');
+                    sidebar.classList.add('sidebar-expanded');
+                    mainContent.style.paddingLeft = '296px';
+                    
+                    // Show sidebar text with delay
+                    setTimeout(() => {
+                        const sidebarTexts = document.querySelectorAll('.sidebar-text');
+                        sidebarTexts.forEach(text => {
+                            text.style.opacity = '1';
+                            text.style.display = 'inline';
+                        });
+                    }, 150);
+                } else {
+                    sidebar.classList.remove('sidebar-expanded');
+                    sidebar.classList.add('sidebar-collapsed');
+                    mainContent.style.paddingLeft = '76px';
+                    
+                    // Hide sidebar text
+                    const sidebarTexts = document.querySelectorAll('.sidebar-text');
+                    sidebarTexts.forEach(text => {
+                        text.style.opacity = '0';
+                        text.style.display = 'none';
+                    });
+                }
+            });
+
+            // Profile modal functionality
+            profileBtn?.addEventListener('click', function() {
+                profileModal.classList.remove('hidden');
+            });
+
+            closeProfile?.addEventListener('click', function() {
+                profileModal.classList.add('hidden');
+            });
+
+            // Close modals when clicking outside
+            profileModal?.addEventListener('click', function(e) {
+                if (e.target === profileModal) {
+                    profileModal.classList.add('hidden');
+                }
+            });
+
+            // Stream join functionality (demo)
+            const joinButtons = document.querySelectorAll('.stream-card button, button:contains("Join Stream")');
+            joinButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // TODO: Implement coin transaction logic
+                    // TODO: Establish WebRTC connection
+                    streamModal?.classList.remove('hidden');
+                });
+            });
+
+            closeStream?.addEventListener('click', function() {
+                streamModal?.classList.add('hidden');
+            });
+
+            streamModal?.addEventListener('click', function(e) {
+                if (e.target === streamModal) {
+                    streamModal?.classList.add('hidden');
+                }
+            });
+
+            // Initialize sidebar text state
+            const sidebarTexts = document.querySelectorAll('.sidebar-text');
+            sidebarTexts.forEach(text => {
+                text.style.opacity = '0';
+                text.style.display = 'none';
+            });
+
+            // Animate stream cards on load
+            const streamCards = document.querySelectorAll('.stream-card');
+            streamCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Set initial card states for animation
+            streamCards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.5s ease';
+            });
+
+            // TODO: Implement WebRTC streaming functionality
+            // TODO: Implement Socket.IO for real-time chat
+            // TODO: Implement coin transaction API calls
+            // TODO: Implement user authentication system
+            // TODO: Implement stream creation and management
+        })();
+    </script>
+</body>
+</html>

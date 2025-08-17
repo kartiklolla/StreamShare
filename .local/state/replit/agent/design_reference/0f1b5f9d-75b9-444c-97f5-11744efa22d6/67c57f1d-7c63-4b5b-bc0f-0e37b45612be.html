@@ -1,0 +1,1112 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamShare - Video Streaming Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'stream-purple': '#9147FF',
+                        'stream-dark': '#0E0E10',
+                        'stream-surface': '#18181B',
+                        'stream-secondary': '#1F1F23',
+                        'stream-cyan': '#00F5FF',
+                        'stream-green': '#00D400',
+                        'stream-orange': '#FFB800',
+                        'stream-text': '#EFEFF1',
+                        'stream-muted': '#ADADB8',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-stream-dark text-stream-text font-inter">
+    
+    <!-- @COMPONENT: Header [Global navigation with user balance and auth] -->
+    <header class="bg-stream-surface border-b border-stream-secondary fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-stream-purple">StreamShare</h1>
+                    </div>
+                </div>
+
+                <!-- Search Bar -->
+                <div class="flex-1 max-w-lg mx-8">
+                    <div class="relative">
+                        <input type="text" placeholder="Search creators or streams..." 
+                               class="w-full bg-stream-secondary border border-stream-muted/20 rounded-lg pl-4 pr-10 py-2 text-stream-text placeholder-stream-muted focus:outline-none focus:ring-2 focus:ring-stream-purple focus:border-transparent">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                            <i class="fas fa-search text-stream-muted"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Actions -->
+                <div class="flex items-center space-x-4">
+                    <!-- Coin Balance -->
+                    <div class="flex items-center space-x-2 bg-stream-secondary px-4 py-2 rounded-lg">
+                        <i class="fas fa-coins text-stream-cyan"></i>
+                        <span class="font-semibold text-stream-cyan" data-bind="user.coinBalance">1,250</span>
+                        <span class="text-stream-muted text-sm">coins</span>
+                    </div>
+
+                    <!-- Notifications -->
+                    <button class="relative p-2 text-stream-muted hover:text-stream-text transition-colors">
+                        <i class="fas fa-bell"></i>
+                        <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-stream-green"></span>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-stream-text hover:text-stream-purple transition-colors">
+                            <div class="w-8 h-8 bg-stream-purple rounded-full flex items-center justify-center">
+                                <span class="text-sm font-semibold">JS</span>
+                            </div>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <div class="pt-16 min-h-screen">
+        
+        <!-- @COMPONENT: Navigation [Side navigation with different views] -->
+        <nav class="fixed left-0 top-16 h-full w-64 bg-stream-surface border-r border-stream-secondary z-40 overflow-y-auto">
+            <div class="p-4">
+                <div class="space-y-2">
+                    <button onclick="showView('home')" class="nav-btn active w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-stream-secondary transition-colors">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </button>
+                    <button onclick="showView('following')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-stream-secondary transition-colors">
+                        <i class="fas fa-heart"></i>
+                        <span>Following</span>
+                    </button>
+                    <button onclick="showView('browse')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-stream-secondary transition-colors">
+                        <i class="fas fa-compass"></i>
+                        <span>Browse</span>
+                    </button>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-stream-muted text-sm font-semibold uppercase tracking-wider mb-4">Your Account</h3>
+                    <div class="space-y-2">
+                        <button onclick="showView('dashboard')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-stream-secondary transition-colors">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Dashboard</span>
+                        </button>
+                        <button onclick="showView('transactions')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-stream-secondary transition-colors">
+                            <i class="fas fa-receipt"></i>
+                            <span>Transactions</span>
+                        </button>
+                        <button onclick="showView('create-stream')" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-stream-secondary transition-colors">
+                            <i class="fas fa-video"></i>
+                            <span>Create Stream</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-8">
+                    <h3 class="text-stream-muted text-sm font-semibold uppercase tracking-wider mb-4">Recommended Channels</h3>
+                    <div class="space-y-3">
+                        <!-- @MAP: recommendedChannels.map(channel => ( -->
+                        <div class="flex items-center space-x-3 p-2 rounded-lg hover:bg-stream-secondary cursor-pointer transition-colors">
+                            <div class="w-8 h-8 bg-gradient-to-br from-stream-purple to-stream-cyan rounded-full"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium truncate" data-bind="channel.name">TechGamer</p>
+                                <p class="text-xs text-stream-muted" data-bind="channel.category">Gaming</p>
+                            </div>
+                            <div class="w-2 h-2 bg-stream-green rounded-full"></div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <!-- @END_COMPONENT: Navigation -->
+
+        <!-- Main Content Area -->
+        <main class="ml-64 p-6">
+            
+            <!-- @COMPONENT: HomeView [Stream discovery and featured content] -->
+            <div id="home-view" class="view-content">
+                <!-- Hero Section -->
+                <section class="mb-8">
+                    <div class="relative h-96 rounded-xl overflow-hidden">
+                        <!-- Modern gaming setup with RGB lighting and multiple monitors -->
+                        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=600" 
+                             alt="Gaming setup with RGB lighting" 
+                             class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-r from-stream-dark/80 to-transparent">
+                            <div class="flex items-center h-full p-8">
+                                <div class="max-w-lg">
+                                    <h2 class="text-4xl font-bold mb-4">Welcome to StreamShare</h2>
+                                    <p class="text-xl text-stream-muted mb-6">Connect with creators and join exclusive streaming rooms using our token system</p>
+                                    <button class="bg-stream-purple hover:bg-stream-purple/80 text-white px-8 py-3 rounded-lg font-semibold transition-colors">
+                                        Explore Streams
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Live Streams Grid -->
+                <section class="mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold">Live Streams</h3>
+                        <button class="text-stream-purple hover:text-stream-purple/80 font-medium">View All</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <!-- @MAP: liveStreams.map(stream => ( -->
+                        <div class="bg-stream-surface rounded-xl overflow-hidden hover:ring-2 hover:ring-stream-purple/50 transition-all cursor-pointer"
+                             onclick="showStreamView()">
+                            <div class="relative">
+                                <!-- Professional streamer at desk with professional lighting setup -->
+                                <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=450" 
+                                     alt="Professional streaming setup" 
+                                     class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3">
+                                    <span class="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold">LIVE</span>
+                                </div>
+                                <div class="absolute top-3 right-3">
+                                    <span class="bg-stream-surface/80 backdrop-blur text-stream-text px-2 py-1 rounded text-xs">
+                                        <i class="fas fa-eye mr-1"></i>2.3k
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3">
+                                    <span class="bg-stream-cyan/90 text-stream-dark px-2 py-1 rounded text-xs font-semibold">
+                                        <i class="fas fa-coins mr-1"></i>50 coins
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-stream-purple to-stream-cyan rounded-full flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-semibold truncate" data-bind="stream.title">Advanced React Patterns Workshop</h4>
+                                        <p class="text-stream-muted text-sm" data-bind="stream.creator">CodeMaster Pro</p>
+                                        <p class="text-stream-muted text-xs mt-1" data-bind="stream.category">Programming</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                        
+                        <!-- More stream cards with different content -->
+                        <div class="bg-stream-surface rounded-xl overflow-hidden hover:ring-2 hover:ring-stream-purple/50 transition-all cursor-pointer">
+                            <div class="relative">
+                                <!-- Gaming streaming setup with mechanical keyboard and RGB mouse -->
+                                <img src="https://images.unsplash.com/photo-1593305841991-05c297ba4575?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=450" 
+                                     alt="Gaming streaming setup" 
+                                     class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3">
+                                    <span class="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold">LIVE</span>
+                                </div>
+                                <div class="absolute top-3 right-3">
+                                    <span class="bg-stream-surface/80 backdrop-blur text-stream-text px-2 py-1 rounded text-xs">
+                                        <i class="fas fa-eye mr-1"></i>5.7k
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3">
+                                    <span class="bg-stream-cyan/90 text-stream-dark px-2 py-1 rounded text-xs font-semibold">
+                                        <i class="fas fa-coins mr-1"></i>25 coins
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-full"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-semibold truncate">Epic Gaming Marathon - 24hrs</h4>
+                                        <p class="text-stream-muted text-sm">GameNinja</p>
+                                        <p class="text-stream-muted text-xs mt-1">Gaming</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-stream-surface rounded-xl overflow-hidden hover:ring-2 hover:ring-stream-purple/50 transition-all cursor-pointer">
+                            <div class="relative">
+                                <!-- Music production studio with electronic equipment and synthesizers -->
+                                <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=450" 
+                                     alt="Music production studio" 
+                                     class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3">
+                                    <span class="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold">LIVE</span>
+                                </div>
+                                <div class="absolute top-3 right-3">
+                                    <span class="bg-stream-surface/80 backdrop-blur text-stream-text px-2 py-1 rounded text-xs">
+                                        <i class="fas fa-eye mr-1"></i>892
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3">
+                                    <span class="bg-stream-cyan/90 text-stream-dark px-2 py-1 rounded text-xs font-semibold">
+                                        <i class="fas fa-coins mr-1"></i>75 coins
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-500 rounded-full"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-semibold truncate">Live Music Production Session</h4>
+                                        <p class="text-stream-muted text-sm">BeatCreator</p>
+                                        <p class="text-stream-muted text-xs mt-1">Music</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-stream-surface rounded-xl overflow-hidden hover:ring-2 hover:ring-stream-purple/50 transition-all cursor-pointer">
+                            <div class="relative">
+                                <!-- Art studio with canvas and painting supplies for creative streaming -->
+                                <img src="https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=450" 
+                                     alt="Art studio with canvas and painting supplies" 
+                                     class="w-full h-48 object-cover">
+                                <div class="absolute top-3 left-3">
+                                    <span class="bg-red-600 text-white px-2 py-1 rounded text-xs font-semibold">LIVE</span>
+                                </div>
+                                <div class="absolute top-3 right-3">
+                                    <span class="bg-stream-surface/80 backdrop-blur text-stream-text px-2 py-1 rounded text-xs">
+                                        <i class="fas fa-eye mr-1"></i>1.2k
+                                    </span>
+                                </div>
+                                <div class="absolute bottom-3 right-3">
+                                    <span class="bg-stream-cyan/90 text-stream-dark px-2 py-1 rounded text-xs font-semibold">
+                                        <i class="fas fa-coins mr-1"></i>40 coins
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex items-start space-x-3">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-semibold truncate">Digital Art Masterclass</h4>
+                                        <p class="text-stream-muted text-sm">ArtistPro</p>
+                                        <p class="text-stream-muted text-xs mt-1">Art & Design</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Categories -->
+                <section>
+                    <h3 class="text-2xl font-bold mb-6">Browse by Category</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <div class="bg-stream-surface rounded-lg p-4 text-center hover:bg-stream-secondary transition-colors cursor-pointer">
+                            <i class="fas fa-gamepad text-2xl text-stream-purple mb-2"></i>
+                            <p class="font-medium">Gaming</p>
+                            <p class="text-stream-muted text-sm">2.3k streams</p>
+                        </div>
+                        <div class="bg-stream-surface rounded-lg p-4 text-center hover:bg-stream-secondary transition-colors cursor-pointer">
+                            <i class="fas fa-code text-2xl text-stream-cyan mb-2"></i>
+                            <p class="font-medium">Programming</p>
+                            <p class="text-stream-muted text-sm">456 streams</p>
+                        </div>
+                        <div class="bg-stream-surface rounded-lg p-4 text-center hover:bg-stream-secondary transition-colors cursor-pointer">
+                            <i class="fas fa-music text-2xl text-stream-green mb-2"></i>
+                            <p class="font-medium">Music</p>
+                            <p class="text-stream-muted text-sm">789 streams</p>
+                        </div>
+                        <div class="bg-stream-surface rounded-lg p-4 text-center hover:bg-stream-secondary transition-colors cursor-pointer">
+                            <i class="fas fa-palette text-2xl text-stream-orange mb-2"></i>
+                            <p class="font-medium">Art</p>
+                            <p class="text-stream-muted text-sm">234 streams</p>
+                        </div>
+                        <div class="bg-stream-surface rounded-lg p-4 text-center hover:bg-stream-secondary transition-colors cursor-pointer">
+                            <i class="fas fa-dumbbell text-2xl text-red-500 mb-2"></i>
+                            <p class="font-medium">Fitness</p>
+                            <p class="text-stream-muted text-sm">123 streams</p>
+                        </div>
+                        <div class="bg-stream-surface rounded-lg p-4 text-center hover:bg-stream-secondary transition-colors cursor-pointer">
+                            <i class="fas fa-comments text-2xl text-blue-500 mb-2"></i>
+                            <p class="font-medium">Talk Shows</p>
+                            <p class="text-stream-muted text-sm">67 streams</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!-- @END_COMPONENT: HomeView -->
+
+            <!-- @COMPONENT: StreamView [Individual stream page with video player and chat] -->
+            <div id="stream-view" class="view-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    <!-- Video Player and Stream Info -->
+                    <div class="lg:col-span-3">
+                        <!-- Video Player -->
+                        <div class="bg-black rounded-xl overflow-hidden mb-4">
+                            <div class="relative aspect-video">
+                                <!-- Placeholder for video stream - professional content creator at their streaming setup -->
+                                <img src="https://images.unsplash.com/photo-1542744173-8e7e53415bb0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1920&h=1080" 
+                                     alt="Professional content creator streaming setup" 
+                                     class="w-full h-full object-cover">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div class="w-20 h-20 bg-stream-purple/80 rounded-full flex items-center justify-center mb-4 mx-auto">
+                                            <i class="fas fa-play text-white text-2xl"></i>
+                                        </div>
+                                        <p class="text-white"><!-- @FUNCTIONALITY: WebRTC video player implementation goes here --></p>
+                                    </div>
+                                </div>
+                                <div class="absolute top-4 left-4">
+                                    <span class="bg-red-600 text-white px-3 py-1 rounded font-semibold">LIVE</span>
+                                </div>
+                                <div class="absolute top-4 right-4 flex space-x-2">
+                                    <span class="bg-black/50 backdrop-blur text-white px-2 py-1 rounded text-sm">
+                                        <i class="fas fa-eye mr-1"></i>2,347
+                                    </span>
+                                    <span class="bg-black/50 backdrop-blur text-white px-2 py-1 rounded text-sm">
+                                        <i class="fas fa-heart mr-1"></i>156
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stream Info -->
+                        <div class="bg-stream-surface rounded-xl p-6">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-start space-x-4">
+                                    <div class="w-12 h-12 bg-gradient-to-br from-stream-purple to-stream-cyan rounded-full flex-shrink-0"></div>
+                                    <div>
+                                        <h2 class="text-xl font-bold" data-bind="stream.title">Advanced React Patterns Workshop</h2>
+                                        <p class="text-stream-muted" data-bind="stream.creator">CodeMaster Pro</p>
+                                        <div class="flex items-center space-x-4 mt-2 text-sm text-stream-muted">
+                                            <span><i class="fas fa-eye mr-1"></i>2,347 viewers</span>
+                                            <span><i class="fas fa-clock mr-1"></i>2h 15m</span>
+                                            <span class="bg-stream-purple/20 text-stream-purple px-2 py-1 rounded">Programming</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Join Stream Button with Payment -->
+                                <div class="text-right">
+                                    <div class="mb-2">
+                                        <span class="text-2xl font-bold text-stream-cyan">50</span>
+                                        <span class="text-stream-muted text-sm ml-1">coins to join</span>
+                                    </div>
+                                    <button class="bg-stream-cyan hover:bg-stream-cyan/80 text-stream-dark px-6 py-3 rounded-lg font-semibold transition-colors"
+                                            data-event="click:handleJoinStream" data-implementation="Should validate user balance and process payment">
+                                        <i class="fas fa-coins mr-2"></i>Join Stream
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="border-t border-stream-secondary pt-4">
+                                <p class="text-stream-text" data-bind="stream.description">
+                                    Join me for an in-depth workshop on advanced React patterns including render props, 
+                                    compound components, and custom hooks. Perfect for intermediate to advanced developers 
+                                    looking to level up their React skills.
+                                </p>
+                                <div class="flex items-center space-x-4 mt-4">
+                                    <button class="flex items-center space-x-2 text-stream-muted hover:text-stream-text transition-colors">
+                                        <i class="fas fa-heart"></i>
+                                        <span>Follow</span>
+                                    </button>
+                                    <button class="flex items-center space-x-2 text-stream-muted hover:text-stream-text transition-colors">
+                                        <i class="fas fa-share"></i>
+                                        <span>Share</span>
+                                    </button>
+                                    <button class="flex items-center space-x-2 text-stream-muted hover:text-stream-text transition-colors">
+                                        <i class="fas fa-flag"></i>
+                                        <span>Report</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Sidebar -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-stream-surface rounded-xl h-full flex flex-col">
+                            <!-- Chat Header -->
+                            <div class="p-4 border-b border-stream-secondary">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="font-semibold">Stream Chat</h3>
+                                    <div class="flex items-center space-x-2 text-sm text-stream-muted">
+                                        <div class="w-2 h-2 bg-stream-green rounded-full"></div>
+                                        <span data-bind="chat.onlineCount">2,347</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Chat Messages -->
+                            <div class="flex-1 p-4 overflow-y-auto space-y-3" style="max-height: 400px;">
+                                <!-- @MAP: chatMessages.map(message => ( -->
+                                <div class="flex items-start space-x-2">
+                                    <div class="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-xs font-semibold text-stream-cyan" data-bind="message.username">TechFan123</span>
+                                            <span class="text-xs text-stream-muted" data-bind="message.timestamp">2m ago</span>
+                                        </div>
+                                        <p class="text-sm text-stream-text" data-bind="message.content">This is amazing! Love the explanation</p>
+                                    </div>
+                                </div>
+                                <!-- @END_MAP )) -->
+                                
+                                <div class="flex items-start space-x-2">
+                                    <div class="w-6 h-6 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-xs font-semibold text-stream-green">DevExpert</span>
+                                            <span class="text-xs text-stream-muted">1m ago</span>
+                                        </div>
+                                        <p class="text-sm text-stream-text">Great use of custom hooks here 🔥</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-2">
+                                    <div class="w-6 h-6 bg-gradient-to-br from-pink-500 to-red-500 rounded-full flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-xs font-semibold text-stream-orange">ReactNinja</span>
+                                            <span class="text-xs text-stream-muted">30s ago</span>
+                                        </div>
+                                        <p class="text-sm text-stream-text">Can you share the GitHub repo?</p>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-start space-x-2">
+                                    <div class="w-6 h-6 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-xs font-semibold text-stream-purple">CodeMaster Pro</span>
+                                            <span class="text-xs text-stream-muted bg-stream-purple/20 px-1 rounded">CREATOR</span>
+                                            <span class="text-xs text-stream-muted">10s ago</span>
+                                        </div>
+                                        <p class="text-sm text-stream-text">@ReactNinja Sure! I'll post it in the description</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Chat Input -->
+                            <div class="p-4 border-t border-stream-secondary">
+                                <div class="flex space-x-2">
+                                    <input type="text" placeholder="Type a message..." 
+                                           class="flex-1 bg-stream-secondary border border-stream-muted/20 rounded-lg px-3 py-2 text-sm text-stream-text placeholder-stream-muted focus:outline-none focus:ring-2 focus:ring-stream-purple focus:border-transparent">
+                                    <button class="bg-stream-purple hover:bg-stream-purple/80 text-white p-2 rounded-lg transition-colors"
+                                            data-event="click:sendMessage" data-implementation="Should send message via Socket.IO">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </div>
+                                <p class="text-xs text-stream-muted mt-2"><!-- @FUNCTIONALITY: Real-time chat using Socket.IO --></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: StreamView -->
+
+            <!-- @COMPONENT: DashboardView [User dashboard with stats and balance] -->
+            <div id="dashboard-view" class="view-content hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold mb-2">Dashboard</h2>
+                    <p class="text-stream-muted">Manage your account and view your streaming activity</p>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-stream-surface rounded-xl p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-stream-muted text-sm">Total Coins</p>
+                                <p class="text-2xl font-bold text-stream-cyan" data-bind="user.totalCoins">1,250</p>
+                            </div>
+                            <div class="w-12 h-12 bg-stream-cyan/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-coins text-stream-cyan"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-stream-surface rounded-xl p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-stream-muted text-sm">Streams Watched</p>
+                                <p class="text-2xl font-bold" data-bind="user.streamsWatched">47</p>
+                            </div>
+                            <div class="w-12 h-12 bg-stream-purple/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-play text-stream-purple"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-stream-surface rounded-xl p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-stream-muted text-sm">Following</p>
+                                <p class="text-2xl font-bold" data-bind="user.following">23</p>
+                            </div>
+                            <div class="w-12 h-12 bg-stream-green/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-heart text-stream-green"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-stream-surface rounded-xl p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-stream-muted text-sm">Hours Watched</p>
+                                <p class="text-2xl font-bold" data-bind="user.hoursWatched">156</p>
+                            </div>
+                            <div class="w-12 h-12 bg-stream-orange/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-clock text-stream-orange"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Recent Activity -->
+                    <div class="bg-stream-surface rounded-xl p-6">
+                        <h3 class="text-xl font-bold mb-6">Recent Activity</h3>
+                        <div class="space-y-4">
+                            <!-- @MAP: recentActivity.map(activity => ( -->
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-gradient-to-br from-stream-purple to-stream-cyan rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-play text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-medium truncate" data-bind="activity.description">Joined "React Workshop" stream</p>
+                                    <p class="text-stream-muted text-sm" data-bind="activity.timestamp">2 hours ago</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-red-500" data-bind="activity.cost">-50 coins</p>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                            
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-heart text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-medium truncate">Followed "GameNinja"</p>
+                                    <p class="text-stream-muted text-sm">1 day ago</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-coins text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-medium truncate">Purchased coin package</p>
+                                    <p class="text-stream-muted text-sm">2 days ago</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-stream-green">+500 coins</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-stream-surface rounded-xl p-6">
+                        <h3 class="text-xl font-bold mb-6">Quick Actions</h3>
+                        <div class="space-y-4">
+                            <button class="w-full bg-stream-purple hover:bg-stream-purple/80 text-white p-4 rounded-lg font-semibold transition-colors flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-coins"></i>
+                                    <span>Buy More Coins</span>
+                                </div>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                            
+                            <button onclick="showView('create-stream')" class="w-full bg-stream-cyan hover:bg-stream-cyan/80 text-stream-dark p-4 rounded-lg font-semibold transition-colors flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-video"></i>
+                                    <span>Start Streaming</span>
+                                </div>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                            
+                            <button class="w-full bg-stream-secondary hover:bg-stream-secondary/80 text-stream-text p-4 rounded-lg font-semibold transition-colors flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-cog"></i>
+                                    <span>Account Settings</span>
+                                </div>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                            
+                            <button onclick="showView('transactions')" class="w-full bg-stream-secondary hover:bg-stream-secondary/80 text-stream-text p-4 rounded-lg font-semibold transition-colors flex items-center justify-between">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fas fa-receipt"></i>
+                                    <span>View Transactions</span>
+                                </div>
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: DashboardView -->
+
+            <!-- @COMPONENT: TransactionsView [Transaction history and coin management] -->
+            <div id="transactions-view" class="view-content hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold mb-2">Transaction History</h2>
+                    <p class="text-stream-muted">View all your coin transactions and spending history</p>
+                </div>
+
+                <!-- Balance Overview -->
+                <div class="bg-stream-surface rounded-xl p-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-stream-cyan/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <!-- Digital coin or cryptocurrency illustration showing token/payment concept -->
+                                <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" 
+                                     alt="Digital cryptocurrency coins" 
+                                     class="w-8 h-8 object-cover rounded">
+                            </div>
+                            <p class="text-2xl font-bold text-stream-cyan" data-bind="user.currentBalance">1,250</p>
+                            <p class="text-stream-muted">Current Balance</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-arrow-down text-red-500 text-xl"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-red-500" data-bind="user.totalSpent">2,890</p>
+                            <p class="text-stream-muted">Total Spent</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-stream-green/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                                <i class="fas fa-arrow-up text-stream-green text-xl"></i>
+                            </div>
+                            <p class="text-2xl font-bold text-stream-green" data-bind="user.totalEarned">4,140</p>
+                            <p class="text-stream-muted">Total Purchased</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="bg-stream-surface rounded-xl p-6 mb-8">
+                    <div class="flex flex-wrap items-center justify-between gap-4">
+                        <div class="flex items-center space-x-4">
+                            <select class="bg-stream-secondary border border-stream-muted/20 rounded-lg px-4 py-2 text-stream-text focus:outline-none focus:ring-2 focus:ring-stream-purple">
+                                <option>All Transactions</option>
+                                <option>Stream Payments</option>
+                                <option>Coin Purchases</option>
+                                <option>Refunds</option>
+                            </select>
+                            <select class="bg-stream-secondary border border-stream-muted/20 rounded-lg px-4 py-2 text-stream-text focus:outline-none focus:ring-2 focus:ring-stream-purple">
+                                <option>Last 30 days</option>
+                                <option>Last 7 days</option>
+                                <option>Last 3 months</option>
+                                <option>All time</option>
+                            </select>
+                        </div>
+                        <button class="bg-stream-purple hover:bg-stream-purple/80 text-white px-6 py-2 rounded-lg font-semibold transition-colors">
+                            <i class="fas fa-download mr-2"></i>Export
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Transactions Table -->
+                <div class="bg-stream-surface rounded-xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-stream-secondary">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-stream-muted uppercase tracking-wider">Date</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-stream-muted uppercase tracking-wider">Type</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-stream-muted uppercase tracking-wider">Description</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-stream-muted uppercase tracking-wider">Amount</th>
+                                    <th class="px-6 py-4 text-left text-xs font-medium text-stream-muted uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-stream-secondary">
+                                <!-- @MAP: transactions.map(transaction => ( -->
+                                <tr class="hover:bg-stream-secondary/50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-stream-text" data-bind="transaction.date">Dec 15, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-500">
+                                            Stream Payment
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-stream-text" data-bind="transaction.description">Joined "React Workshop" by CodeMaster Pro</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-500" data-bind="transaction.amount">-50 coins</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stream-green/20 text-stream-green">
+                                            Completed
+                                        </span>
+                                    </td>
+                                </tr>
+                                <!-- @END_MAP )) -->
+                                
+                                <tr class="hover:bg-stream-secondary/50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-stream-text">Dec 14, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stream-green/20 text-stream-green">
+                                            Purchase
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-stream-text">Coin Package - 500 coins</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-stream-green">+500 coins</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stream-green/20 text-stream-green">
+                                            Completed
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-stream-secondary/50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-stream-text">Dec 13, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-500">
+                                            Stream Payment
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-stream-text">Joined "Gaming Marathon" by GameNinja</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-500">-25 coins</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stream-green/20 text-stream-green">
+                                            Completed
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-stream-secondary/50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-stream-text">Dec 12, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-500">
+                                            Stream Payment
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-stream-text">Joined "Music Production" by BeatCreator</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-500">-75 coins</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stream-green/20 text-stream-green">
+                                            Completed
+                                        </span>
+                                    </td>
+                                </tr>
+
+                                <tr class="hover:bg-stream-secondary/50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-stream-text">Dec 10, 2024</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stream-green/20 text-stream-green">
+                                            Purchase
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-sm text-stream-text">Coin Package - 1000 coins</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-stream-green">+1000 coins</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-stream-green/20 text-stream-green">
+                                            Completed
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="bg-stream-secondary px-6 py-4 flex items-center justify-between">
+                        <div class="text-sm text-stream-muted">
+                            Showing <span class="font-medium">1</span> to <span class="font-medium">5</span> of <span class="font-medium">47</span> transactions
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-1 text-sm bg-stream-surface hover:bg-stream-secondary text-stream-text rounded border border-stream-muted/20 transition-colors">
+                                Previous
+                            </button>
+                            <button class="px-3 py-1 text-sm bg-stream-purple text-white rounded transition-colors">1</button>
+                            <button class="px-3 py-1 text-sm bg-stream-surface hover:bg-stream-secondary text-stream-text rounded border border-stream-muted/20 transition-colors">2</button>
+                            <button class="px-3 py-1 text-sm bg-stream-surface hover:bg-stream-secondary text-stream-text rounded border border-stream-muted/20 transition-colors">3</button>
+                            <button class="px-3 py-1 text-sm bg-stream-surface hover:bg-stream-secondary text-stream-text rounded border border-stream-muted/20 transition-colors">
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: TransactionsView -->
+
+            <!-- @COMPONENT: CreateStreamView [Creator dashboard for stream management] -->
+            <div id="create-stream-view" class="view-content hidden">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold mb-2">Create Stream</h2>
+                    <p class="text-stream-muted">Set up your streaming room and start broadcasting</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Stream Setup Form -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-stream-surface rounded-xl p-6">
+                            <h3 class="text-xl font-bold mb-6">Stream Details</h3>
+                            
+                            <form class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-stream-text mb-2">Stream Title</label>
+                                    <input type="text" placeholder="Enter your stream title..." 
+                                           class="w-full bg-stream-secondary border border-stream-muted/20 rounded-lg px-4 py-3 text-stream-text placeholder-stream-muted focus:outline-none focus:ring-2 focus:ring-stream-purple focus:border-transparent">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-stream-text mb-2">Description</label>
+                                    <textarea rows="4" placeholder="Describe what your stream will be about..." 
+                                              class="w-full bg-stream-secondary border border-stream-muted/20 rounded-lg px-4 py-3 text-stream-text placeholder-stream-muted focus:outline-none focus:ring-2 focus:ring-stream-purple focus:border-transparent resize-none"></textarea>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-stream-text mb-2">Category</label>
+                                        <select class="w-full bg-stream-secondary border border-stream-muted/20 rounded-lg px-4 py-3 text-stream-text focus:outline-none focus:ring-2 focus:ring-stream-purple">
+                                            <option>Select category...</option>
+                                            <option>Gaming</option>
+                                            <option>Programming</option>
+                                            <option>Music</option>
+                                            <option>Art & Design</option>
+                                            <option>Education</option>
+                                            <option>Talk Shows</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-stream-text mb-2">Entry Cost (Coins)</label>
+                                        <input type="number" placeholder="50" min="1" max="1000"
+                                               class="w-full bg-stream-secondary border border-stream-muted/20 rounded-lg px-4 py-3 text-stream-text placeholder-stream-muted focus:outline-none focus:ring-2 focus:ring-stream-purple focus:border-transparent">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-stream-text mb-2">Stream Thumbnail</label>
+                                    <div class="border-2 border-dashed border-stream-muted/20 rounded-lg p-8 text-center hover:border-stream-purple/50 transition-colors cursor-pointer">
+                                        <!-- Professional creator workspace with camera and lighting equipment -->
+                                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                                             alt="Professional creator workspace with camera and lighting" 
+                                             class="w-32 h-24 object-cover rounded-lg mx-auto mb-4">
+                                        <div class="text-stream-muted">
+                                            <i class="fas fa-cloud-upload-arrow-up text-2xl mb-2"></i>
+                                            <p>Click to upload thumbnail</p>
+                                            <p class="text-sm">PNG, JPG up to 2MB</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center space-x-3">
+                                    <input type="checkbox" id="mature-content" class="w-4 h-4 text-stream-purple bg-stream-secondary border-stream-muted/20 rounded focus:ring-stream-purple">
+                                    <label for="mature-content" class="text-sm text-stream-text">This stream contains mature content (18+)</label>
+                                </div>
+
+                                <div class="flex space-x-4">
+                                    <button type="button" class="flex-1 bg-stream-purple hover:bg-stream-purple/80 text-white py-3 rounded-lg font-semibold transition-colors"
+                                            data-event="click:startStream" data-implementation="Should initialize WebRTC connection and create room">
+                                        <i class="fas fa-video mr-2"></i>Start Stream
+                                    </button>
+                                    <button type="button" class="px-6 bg-stream-secondary hover:bg-stream-secondary/80 text-stream-text py-3 rounded-lg font-semibold transition-colors">
+                                        Save Draft
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Stream Preview & Settings -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <!-- Camera Preview -->
+                        <div class="bg-stream-surface rounded-xl p-6">
+                            <h3 class="text-lg font-bold mb-4">Camera Preview</h3>
+                            <div class="aspect-video bg-black rounded-lg overflow-hidden mb-4">
+                                <!-- Content creator in professional streaming environment with green screen -->
+                                <img src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                                     alt="Content creator in professional streaming setup" 
+                                     class="w-full h-full object-cover">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <!-- @FUNCTIONALITY: Live camera feed preview using getUserMedia() -->
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-stream-text">Camera</span>
+                                    <button class="text-stream-purple hover:text-stream-purple/80 transition-colors">
+                                        <i class="fas fa-video"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-stream-text">Microphone</span>
+                                    <button class="text-stream-purple hover:text-stream-purple/80 transition-colors">
+                                        <i class="fas fa-microphone"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm text-stream-text">Screen Share</span>
+                                    <button class="text-stream-muted hover:text-stream-text transition-colors">
+                                        <i class="fas fa-desktop"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stream Stats -->
+                        <div class="bg-stream-surface rounded-xl p-6">
+                            <h3 class="text-lg font-bold mb-4">Your Stats</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-stream-muted">Total Streams</span>
+                                    <span class="font-semibold" data-bind="creator.totalStreams">12</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-stream-muted">Total Views</span>
+                                    <span class="font-semibold" data-bind="creator.totalViews">3,457</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-stream-muted">Followers</span>
+                                    <span class="font-semibold" data-bind="creator.followers">89</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-stream-muted">Coins Earned</span>
+                                    <span class="font-semibold text-stream-cyan" data-bind="creator.coinsEarned">2,340</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Streams -->
+                        <div class="bg-stream-surface rounded-xl p-6">
+                            <h3 class="text-lg font-bold mb-4">Recent Streams</h3>
+                            <div class="space-y-3">
+                                <!-- @MAP: recentStreams.map(stream => ( -->
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-8 bg-stream-secondary rounded flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium truncate" data-bind="stream.title">React Tutorial Stream</p>
+                                        <p class="text-xs text-stream-muted" data-bind="stream.stats">156 views • 2 days ago</p>
+                                    </div>
+                                </div>
+                                <!-- @END_MAP )) -->
+                                
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-8 bg-stream-secondary rounded flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium truncate">JavaScript Deep Dive</p>
+                                        <p class="text-xs text-stream-muted">243 views • 5 days ago</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-8 bg-stream-secondary rounded flex-shrink-0"></div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium truncate">Node.js API Workshop</p>
+                                        <p class="text-xs text-stream-muted">189 views • 1 week ago</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- @END_COMPONENT: CreateStreamView -->
+
+        </main>
+    </div>
+
+    <!-- @COMPONENT: LoadingModal [Loading states for transactions] -->
+    <div id="loading-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="bg-stream-surface rounded-xl p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-stream-purple/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-stream-purple"></div>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Processing Payment</h3>
+                <p class="text-stream-muted">Please wait while we process your transaction...</p>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: LoadingModal -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        
+        (function() {
+            // View management
+            function showView(viewName) {
+                // Hide all views
+                document.querySelectorAll('.view-content').forEach(view => {
+                    view.classList.add('hidden');
+                });
+                
+                // Show selected view
+                const targetView = document.getElementById(viewName + '-view');
+                if (targetView) {
+                    targetView.classList.remove('hidden');
+                }
+                
+                // Update navigation
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('active', 'bg-stream-secondary', 'text-stream-purple');
+                });
+                
+                event.target.classList.add('active', 'bg-stream-secondary', 'text-stream-purple');
+            }
+            
+            // Stream view functionality
+            function showStreamView() {
+                showView('stream');
+                // TODO: Initialize WebRTC connection for viewing stream
+            }
+            
+            // Make functions globally available
+            window.showView = showView;
+            window.showStreamView = showStreamView;
+            
+            // Initialize default view
+            document.addEventListener('DOMContentLoaded', function() {
+                showView('home');
+            });
+            
+            // Transaction handling
+            window.handleJoinStream = function() {
+                // TODO: Implement coin balance validation
+                // TODO: Process payment transaction
+                // TODO: Initialize WebRTC connection if payment successful
+                console.log('Join stream payment processing...');
+                
+                // Show loading modal
+                document.getElementById('loading-modal').classList.remove('hidden');
+                document.getElementById('loading-modal').classList.add('flex');
+                
+                // Simulate payment processing
+                setTimeout(() => {
+                    document.getElementById('loading-modal').classList.add('hidden');
+                    document.getElementById('loading-modal').classList.remove('flex');
+                    // TODO: Handle success/failure response
+                }, 2000);
+            };
+            
+            // Chat functionality
+            window.sendMessage = function() {
+                // TODO: Implement Socket.IO message sending
+                console.log('Sending chat message...');
+            };
+            
+            // Stream creation
+            window.startStream = function() {
+                // TODO: Initialize WebRTC broadcasting
+                // TODO: Create room in backend
+                // TODO: Start media server connection
+                console.log('Starting stream...');
+            };
+            
+        })();
+    </script>
+</body>
+</html>

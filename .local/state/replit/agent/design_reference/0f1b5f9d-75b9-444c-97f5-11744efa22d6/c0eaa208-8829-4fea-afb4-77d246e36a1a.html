@@ -1,0 +1,722 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamShare - Premium Video Streaming Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#6366F1',
+                        secondary: '#3B82F6', 
+                        accent: '#F59E0B',
+                        dark: '#0F0F23',
+                        darkSecondary: '#1A1A2E',
+                        glass: 'rgba(255, 255, 255, 0.1)'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    backdropBlur: {
+                        'xs': '2px',
+                        'glass': '16px'
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #0F0F23 0%, #1A1A2E 50%, #16213E 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(99, 102, 241, 0.3);
+        }
+        
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+        
+        .sidebar-expanded {
+            width: 16rem;
+        }
+        
+        .logo-animation {
+            opacity: 0;
+            animation: letterReveal 2s ease-out forwards;
+        }
+        
+        @keyframes letterReveal {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        
+        .letter-e { animation-delay: 0s; }
+        .letter-r { animation-delay: 0.1s; }
+        .letter-a { animation-delay: 0.2s; }
+        .letter-h { animation-delay: 0.3s; }
+        .letter-s { animation-delay: 0.4s; }
+        .letter-m { animation-delay: 0.5s; }
+        .letter-a2 { animation-delay: 0.6s; }
+        .letter-e2 { animation-delay: 0.7s; }
+        .letter-r2 { animation-delay: 0.8s; }
+        .letter-t { animation-delay: 0.9s; }
+        .letter-s2 { animation-delay: 1.0s; }
+        
+        .chat-animation {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-dark text-white font-sans">
+    <!-- @COMPONENT: MainLayout -->
+    <div class="min-h-screen gradient-bg">
+        <!-- @COMPONENT: TopNavigation -->
+        <nav class="fixed top-0 w-full z-50 glass-effect">
+            <div class="flex items-center justify-between px-6 py-4">
+                <div class="flex items-center space-x-4">
+                    <!-- Dashboard Icon -->
+                    <button id="sidebarToggle" class="text-white hover:text-accent transition-colors duration-200">
+                        <i class="fas fa-th text-xl"></i>
+                    </button>
+                    
+                    <!-- Animated Logo -->
+                    <div class="text-2xl font-bold">
+                        <span class="logo-animation letter-s">S</span>
+                        <span class="logo-animation letter-t">t</span>
+                        <span class="logo-animation letter-r2">r</span>
+                        <span class="logo-animation letter-e2">e</span>
+                        <span class="logo-animation letter-a2">a</span>
+                        <span class="logo-animation letter-m">m</span>
+                        <span class="logo-animation letter-s2 text-accent">S</span>
+                        <span class="logo-animation letter-h text-accent">h</span>
+                        <span class="logo-animation letter-a text-accent">a</span>
+                        <span class="logo-animation letter-r text-accent">r</span>
+                        <span class="logo-animation letter-e text-accent">e</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Search Bar -->
+                    <div class="relative">
+                        <input type="text" placeholder="Search streams, creators..." 
+                               class="bg-glass backdrop-blur-sm border border-white/20 rounded-lg px-4 py-2 w-80 text-white placeholder-gray-400 focus:outline-none focus:border-accent">
+                        <i class="fas fa-search absolute right-3 top-3 text-gray-400"></i>
+                    </div>
+                    
+                    <!-- User Profile -->
+                    <button id="profileToggle" class="flex items-center space-x-2 glass-effect rounded-lg px-4 py-2 hover:bg-white/20 transition-all">
+                        <!-- Profile photo placeholder -->
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=32&h=32" 
+                             alt="User avatar" class="w-8 h-8 rounded-full">
+                        <span class="font-medium" data-bind="user.name">Alex Johnson</span>
+                        <i class="fas fa-chevron-down text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <!-- @END_COMPONENT: TopNavigation -->
+
+        <!-- @COMPONENT: RetractableSidebar -->
+        <aside id="sidebar" class="fixed left-0 top-16 h-full sidebar-collapsed glass-effect transition-all duration-300 z-40 overflow-hidden">
+            <div class="p-4 space-y-6">
+                <!-- Coin Balance -->
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-coins text-accent text-xl"></i>
+                        <div class="sidebar-content opacity-0 transition-opacity duration-300">
+                            <p class="text-sm text-gray-400">Balance</p>
+                            <p class="text-lg font-bold text-accent" data-bind="user.coinBalance">2,450</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="space-y-3">
+                    <button class="flex items-center space-x-3 w-full text-left hover:text-accent transition-colors">
+                        <i class="fas fa-plus text-lg"></i>
+                        <span class="sidebar-content opacity-0 transition-opacity duration-300">Add Coins</span>
+                    </button>
+                    
+                    <button class="flex items-center space-x-3 w-full text-left hover:text-accent transition-colors">
+                        <i class="fas fa-star text-lg"></i>
+                        <span class="sidebar-content opacity-0 transition-opacity duration-300">Subscriptions</span>
+                    </button>
+                    
+                    <button class="flex items-center space-x-3 w-full text-left hover:text-accent transition-colors">
+                        <i class="fas fa-history text-lg"></i>
+                        <span class="sidebar-content opacity-0 transition-opacity duration-300">Watch History</span>
+                    </button>
+                    
+                    <button class="flex items-center space-x-3 w-full text-left hover:text-accent transition-colors">
+                        <i class="fas fa-video text-lg"></i>
+                        <span class="sidebar-content opacity-0 transition-opacity duration-300">Start Streaming</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <!-- @END_COMPONENT: RetractableSidebar -->
+
+        <!-- @COMPONENT: MainContent -->
+        <main id="mainContent" class="ml-16 pt-20 transition-all duration-300">
+            <!-- Genre Filter Bar -->
+            <div class="px-6 mb-8">
+                <div class="flex space-x-4 overflow-x-auto">
+                    <!-- @MAP: genres.map(genre => ( -->
+                    <button class="genre-filter px-6 py-2 rounded-full glass-effect hover:bg-accent hover:text-dark transition-all whitespace-nowrap" data-genre="gaming">
+                        <i class="fas fa-gamepad mr-2"></i>Gaming
+                    </button>
+                    <button class="genre-filter px-6 py-2 rounded-full glass-effect hover:bg-accent hover:text-dark transition-all whitespace-nowrap" data-genre="music">
+                        <i class="fas fa-music mr-2"></i>Music
+                    </button>
+                    <button class="genre-filter px-6 py-2 rounded-full glass-effect hover:bg-accent hover:text-dark transition-all whitespace-nowrap" data-genre="tech">
+                        <i class="fas fa-laptop-code mr-2"></i>Tech
+                    </button>
+                    <button class="genre-filter px-6 py-2 rounded-full glass-effect hover:bg-accent hover:text-dark transition-all whitespace-nowrap" data-genre="art">
+                        <i class="fas fa-palette mr-2"></i>Art
+                    </button>
+                    <button class="genre-filter px-6 py-2 rounded-full glass-effect hover:bg-accent hover:text-dark transition-all whitespace-nowrap" data-genre="fitness">
+                        <i class="fas fa-dumbbell mr-2"></i>Fitness
+                    </button>
+                    <!-- @END_MAP )) -->
+                </div>
+            </div>
+
+            <!-- Featured Streams Section -->
+            <section class="px-6 mb-12">
+                <h2 class="text-3xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Featured Streams</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- @MAP: featuredStreams.map(stream => ( -->
+                    
+                    <!-- Stream Card 1 -->
+                    <div class="glass-effect rounded-xl overflow-hidden card-hover cursor-pointer stream-card" data-stream-id="1">
+                        <!-- Gaming stream with popular FPS game -->
+                        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=225" 
+                             alt="Gaming stream setup" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-semibold text-lg" data-bind="stream.title">Epic Gaming Session</h3>
+                                <span class="bg-red-500 text-xs px-2 py-1 rounded-full">LIVE</span>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-3" data-bind="stream.creator">ProGamer_Alex</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-sm text-gray-400"><i class="fas fa-eye mr-1"></i><span data-bind="stream.viewers">1.2K</span></span>
+                                    <span class="text-accent font-bold"><i class="fas fa-coins mr-1"></i><span data-bind="stream.cost">50</span></span>
+                                </div>
+                                <button class="bg-primary hover:bg-blue-600 px-4 py-1 rounded-lg text-sm transition-colors">Join</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stream Card 2 -->
+                    <div class="glass-effect rounded-xl overflow-hidden card-hover cursor-pointer stream-card" data-stream-id="2">
+                        <!-- Music production studio setup -->
+                        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=225" 
+                             alt="Music production studio" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-semibold text-lg" data-bind="stream.title">Beat Making Live</h3>
+                                <span class="bg-red-500 text-xs px-2 py-1 rounded-full">LIVE</span>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-3" data-bind="stream.creator">MusicMaestro</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-sm text-gray-400"><i class="fas fa-eye mr-1"></i><span data-bind="stream.viewers">847</span></span>
+                                    <span class="text-accent font-bold"><i class="fas fa-coins mr-1"></i><span data-bind="stream.cost">75</span></span>
+                                </div>
+                                <button class="bg-primary hover:bg-blue-600 px-4 py-1 rounded-lg text-sm transition-colors">Join</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stream Card 3 -->
+                    <div class="glass-effect rounded-xl overflow-hidden card-hover cursor-pointer stream-card" data-stream-id="3">
+                        <!-- Tech workspace with multiple monitors -->
+                        <img src="https://images.unsplash.com/photo-1547394765-185e1e68f34e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=225" 
+                             alt="Developer workspace with code" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-semibold text-lg" data-bind="stream.title">Coding React App</h3>
+                                <span class="bg-red-500 text-xs px-2 py-1 rounded-full">LIVE</span>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-3" data-bind="stream.creator">CodeWithSarah</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-sm text-gray-400"><i class="fas fa-eye mr-1"></i><span data-bind="stream.viewers">532</span></span>
+                                    <span class="text-accent font-bold"><i class="fas fa-coins mr-1"></i><span data-bind="stream.cost">30</span></span>
+                                </div>
+                                <button class="bg-primary hover:bg-blue-600 px-4 py-1 rounded-lg text-sm transition-colors">Join</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stream Card 4 -->
+                    <div class="glass-effect rounded-xl overflow-hidden card-hover cursor-pointer stream-card" data-stream-id="4">
+                        <!-- Art creation workspace with painting supplies -->
+                        <img src="https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=225" 
+                             alt="Artist workspace with painting supplies" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="font-semibold text-lg" data-bind="stream.title">Digital Art Session</h3>
+                                <span class="bg-red-500 text-xs px-2 py-1 rounded-full">LIVE</span>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-3" data-bind="stream.creator">ArtistEmily</p>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <span class="text-sm text-gray-400"><i class="fas fa-eye mr-1"></i><span data-bind="stream.viewers">329</span></span>
+                                    <span class="text-accent font-bold"><i class="fas fa-coins mr-1"></i><span data-bind="stream.cost">40</span></span>
+                                </div>
+                                <button class="bg-primary hover:bg-blue-600 px-4 py-1 rounded-lg text-sm transition-colors">Join</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+            </section>
+
+            <!-- Popular Genres Section -->
+            <section class="px-6 mb-12">
+                <h2 class="text-3xl font-bold mb-6 bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">Trending by Genre</h2>
+                
+                <!-- Gaming Category -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4 text-accent"><i class="fas fa-gamepad mr-2"></i>Gaming</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <!-- Gaming streams grid -->
+                        <div class="glass-effect rounded-lg overflow-hidden card-hover cursor-pointer">
+                            <!-- Gaming setup with RGB lighting -->
+                            <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=169" 
+                                 alt="RGB gaming setup" class="w-full h-32 object-cover">
+                            <div class="p-3">
+                                <h4 class="font-medium text-sm mb-1">Speedrun Challenge</h4>
+                                <p class="text-xs text-gray-400">SpeedRunner_Pro</p>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-xs text-gray-400"><i class="fas fa-eye mr-1"></i>2.1K</span>
+                                    <span class="text-accent text-xs font-bold"><i class="fas fa-coins mr-1"></i>60</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Add more gaming stream cards here -->
+                    </div>
+                </div>
+
+                <!-- Music Category -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4 text-primary"><i class="fas fa-music mr-2"></i>Music</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <!-- Music streams grid -->
+                        <div class="glass-effect rounded-lg overflow-hidden card-hover cursor-pointer">
+                            <!-- Professional music recording studio -->
+                            <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&h=169" 
+                                 alt="Recording studio with instruments" class="w-full h-32 object-cover">
+                            <div class="p-3">
+                                <h4 class="font-medium text-sm mb-1">Acoustic Session</h4>
+                                <p class="text-xs text-gray-400">GuitarGuru_Mike</p>
+                                <div class="flex justify-between items-center mt-2">
+                                    <span class="text-xs text-gray-400"><i class="fas fa-eye mr-1"></i>892</span>
+                                    <span class="text-accent text-xs font-bold"><i class="fas fa-coins mr-1"></i>45</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        <!-- @END_COMPONENT: MainContent -->
+
+        <!-- @COMPONENT: ProfileModal [Hidden by default] -->
+        <div id="profileModal" class="fixed inset-0 z-50 hidden">
+            <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="profileModalBackdrop"></div>
+            <div class="absolute inset-4 glass-effect rounded-2xl overflow-hidden">
+                <div class="flex h-full">
+                    <!-- Profile Info Section -->
+                    <div class="w-1/3 p-8 border-r border-white/20">
+                        <div class="text-center mb-6">
+                            <!-- User profile photo -->
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=120&h=120" 
+                                 alt="User profile" class="w-24 h-24 rounded-full mx-auto mb-4">
+                            <h2 class="text-2xl font-bold" data-bind="user.name">Alex Johnson</h2>
+                            <p class="text-gray-400" data-bind="user.username">@alex_streams</p>
+                        </div>
+                        
+                        <div class="space-y-4">
+                            <div class="glass-effect rounded-lg p-4">
+                                <h3 class="font-semibold mb-2">Account Stats</h3>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Coins Balance:</span>
+                                        <span class="text-accent font-bold" data-bind="user.coinBalance">2,450</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Streams Watched:</span>
+                                        <span data-bind="user.streamsWatched">127</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400">Total Spent:</span>
+                                        <span data-bind="user.totalSpent">8,750</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button class="w-full bg-accent hover:bg-orange-500 text-dark font-semibold py-2 rounded-lg transition-colors">
+                                Add Coins
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Tabs Section -->
+                    <div class="flex-1 p-8">
+                        <div class="flex space-x-6 mb-6 border-b border-white/20">
+                            <button class="pb-2 border-b-2 border-accent text-accent font-semibold tab-active" data-tab="watchHistory">Watch History</button>
+                            <button class="pb-2 text-gray-400 hover:text-white transition-colors" data-tab="transactions">Transactions</button>
+                            <button class="pb-2 text-gray-400 hover:text-white transition-colors" data-tab="subscriptions">Subscriptions</button>
+                        </div>
+                        
+                        <!-- Watch History Tab -->
+                        <div id="watchHistoryTab" class="tab-content">
+                            <h3 class="text-xl font-semibold mb-4">Recent Streams</h3>
+                            <div class="space-y-3 max-h-96 overflow-y-auto">
+                                <!-- @MAP: user.watchHistory.map(stream => ( -->
+                                <div class="flex items-center space-x-4 glass-effect rounded-lg p-3">
+                                    <!-- Stream thumbnail from watch history -->
+                                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=80&h=45" 
+                                         alt="Watched stream thumbnail" class="w-16 h-9 rounded object-cover">
+                                    <div class="flex-1">
+                                        <h4 class="font-medium" data-bind="stream.title">Epic Gaming Session</h4>
+                                        <p class="text-sm text-gray-400" data-bind="stream.creator">ProGamer_Alex</p>
+                                        <p class="text-xs text-gray-500" data-bind="stream.watchedAt">2 hours ago</p>
+                                    </div>
+                                    <span class="text-accent text-sm" data-bind="stream.paidAmount">-50 coins</span>
+                                </div>
+                                <!-- @END_MAP )) -->
+                            </div>
+                        </div>
+                        
+                        <!-- Transactions Tab -->
+                        <div id="transactionsTab" class="tab-content hidden">
+                            <h3 class="text-xl font-semibold mb-4">Transaction History</h3>
+                            <div class="space-y-3 max-h-96 overflow-y-auto">
+                                <!-- Transaction entries -->
+                                <div class="flex items-center justify-between glass-effect rounded-lg p-3">
+                                    <div>
+                                        <p class="font-medium">Stream Payment</p>
+                                        <p class="text-sm text-gray-400">Epic Gaming Session</p>
+                                        <p class="text-xs text-gray-500">Today, 3:45 PM</p>
+                                    </div>
+                                    <span class="text-red-400 font-semibold">-50 coins</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Close Button -->
+                <button id="closeProfileModal" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: ProfileModal -->
+
+        <!-- @COMPONENT: StreamingModal [Hidden by default] -->
+        <div id="streamingModal" class="fixed inset-0 z-50 hidden">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" id="streamingModalBackdrop"></div>
+            <div class="absolute inset-4 glass-effect rounded-2xl overflow-hidden">
+                <div class="flex h-full">
+                    <!-- Video Player Section -->
+                    <div class="flex-1 bg-black relative">
+                        <!-- Main video stream placeholder -->
+                        <div class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
+                            <!-- Live streaming interface placeholder -->
+                            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=450" 
+                                 alt="Live gaming stream interface" class="w-full h-full object-cover">
+                        </div>
+                        
+                        <!-- Stream Controls Overlay -->
+                        <div class="absolute bottom-0 left-0 right-0 glass-effect p-4">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <button class="text-white hover:text-accent transition-colors">
+                                        <i class="fas fa-volume-up text-xl"></i>
+                                    </button>
+                                    <button class="text-white hover:text-accent transition-colors">
+                                        <i class="fas fa-cog text-xl"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <span class="bg-red-500 text-xs px-2 py-1 rounded-full">LIVE</span>
+                                    <span class="text-sm text-gray-300"><i class="fas fa-eye mr-1"></i>1,247 viewers</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Stream Info Overlay -->
+                        <div class="absolute top-4 left-4 glass-effect rounded-lg p-4">
+                            <h3 class="font-bold text-lg mb-1">Epic Gaming Session</h3>
+                            <p class="text-gray-300 text-sm">ProGamer_Alex</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Section -->
+                    <div class="w-80 glass-effect border-l border-white/20 flex flex-col">
+                        <!-- Chat Header -->
+                        <div class="p-4 border-b border-white/20">
+                            <h3 class="font-semibold">Stream Chat</h3>
+                            <p class="text-sm text-gray-400">1,247 participants</p>
+                        </div>
+                        
+                        <!-- Chat Messages -->
+                        <div id="chatMessages" class="flex-1 p-4 space-y-3 overflow-y-auto">
+                            <!-- @MAP: chatMessages.map(message => ( -->
+                            <div class="chat-animation">
+                                <div class="flex items-start space-x-2">
+                                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=24&h=24" 
+                                         alt="User avatar" class="w-6 h-6 rounded-full">
+                                    <div class="flex-1">
+                                        <p class="text-sm"><span class="font-semibold text-accent" data-bind="message.username">GameFan123</span>: <span data-bind="message.content">This gameplay is insane! 🔥</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- @END_MAP )) -->
+                        </div>
+                        
+                        <!-- Chat Input -->
+                        <div class="p-4 border-t border-white/20">
+                            <div class="flex space-x-2">
+                                <input type="text" id="chatInput" placeholder="Type a message..." 
+                                       class="flex-1 bg-glass backdrop-blur-sm border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-accent">
+                                <button id="sendMessage" class="bg-accent hover:bg-orange-500 text-dark p-2 rounded-lg transition-colors">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Close Button -->
+                <button id="closeStreamingModal" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-10">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: StreamingModal -->
+
+    </div>
+    <!-- @END_COMPONENT: MainLayout -->
+
+    <!-- JavaScript for Interactions -->
+    <script>
+        (function() {
+            // Sidebar Toggle Functionality
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            let sidebarExpanded = false;
+
+            function toggleSidebar() {
+                sidebarExpanded = !sidebarExpanded;
+                if (sidebarExpanded) {
+                    sidebar.classList.remove('sidebar-collapsed');
+                    sidebar.classList.add('sidebar-expanded');
+                    mainContent.classList.remove('ml-16');
+                    mainContent.classList.add('ml-64');
+                    
+                    // Show sidebar content
+                    setTimeout(() => {
+                        document.querySelectorAll('.sidebar-content').forEach(el => {
+                            el.classList.remove('opacity-0');
+                            el.classList.add('opacity-100');
+                        });
+                    }, 150);
+                } else {
+                    sidebar.classList.remove('sidebar-expanded');
+                    sidebar.classList.add('sidebar-collapsed');
+                    mainContent.classList.remove('ml-64');
+                    mainContent.classList.add('ml-16');
+                    
+                    // Hide sidebar content
+                    document.querySelectorAll('.sidebar-content').forEach(el => {
+                        el.classList.remove('opacity-100');
+                        el.classList.add('opacity-0');
+                    });
+                }
+            }
+
+            sidebarToggle.addEventListener('click', toggleSidebar);
+
+            // Auto-expand sidebar on hover
+            sidebar.addEventListener('mouseenter', () => {
+                if (!sidebarExpanded) {
+                    toggleSidebar();
+                }
+            });
+
+            sidebar.addEventListener('mouseleave', () => {
+                if (sidebarExpanded) {
+                    toggleSidebar();
+                }
+            });
+
+            // Profile Modal Functionality
+            const profileToggle = document.getElementById('profileToggle');
+            const profileModal = document.getElementById('profileModal');
+            const closeProfileModal = document.getElementById('closeProfileModal');
+            const profileModalBackdrop = document.getElementById('profileModalBackdrop');
+
+            function openProfileModal() {
+                profileModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeProfileModalFunc() {
+                profileModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            profileToggle.addEventListener('click', openProfileModal);
+            closeProfileModal.addEventListener('click', closeProfileModalFunc);
+            profileModalBackdrop.addEventListener('click', closeProfileModalFunc);
+
+            // Profile Modal Tabs
+            const tabButtons = document.querySelectorAll('[data-tab]');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const tabName = button.getAttribute('data-tab');
+                    
+                    // Update button states
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('border-accent', 'text-accent', 'tab-active');
+                        btn.classList.add('text-gray-400');
+                    });
+                    button.classList.add('border-accent', 'text-accent', 'tab-active');
+                    button.classList.remove('text-gray-400');
+                    
+                    // Show corresponding tab content
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(tabName + 'Tab').classList.remove('hidden');
+                });
+            });
+
+            // Stream Card Click Functionality
+            const streamCards = document.querySelectorAll('.stream-card');
+            const streamingModal = document.getElementById('streamingModal');
+            const closeStreamingModal = document.getElementById('closeStreamingModal');
+            const streamingModalBackdrop = document.getElementById('streamingModalBackdrop');
+
+            function openStreamingModal() {
+                streamingModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                // TODO: Implement WebRTC connection logic here
+            }
+
+            function closeStreamingModalFunc() {
+                streamingModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                // TODO: Implement stream disconnection logic here
+            }
+
+            streamCards.forEach(card => {
+                card.addEventListener('click', openStreamingModal);
+            });
+
+            closeStreamingModal.addEventListener('click', closeStreamingModalFunc);
+            streamingModalBackdrop.addEventListener('click', closeStreamingModalFunc);
+
+            // Chat Functionality
+            const chatInput = document.getElementById('chatInput');
+            const sendMessage = document.getElementById('sendMessage');
+            const chatMessages = document.getElementById('chatMessages');
+
+            function addChatMessage(username, message) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'chat-animation';
+                messageElement.innerHTML = `
+                    <div class="flex items-start space-x-2">
+                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=24&h=24" 
+                             alt="User avatar" class="w-6 h-6 rounded-full">
+                        <div class="flex-1">
+                            <p class="text-sm"><span class="font-semibold text-accent">${username}</span>: ${message}</p>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            function sendChatMessage() {
+                const message = chatInput.value.trim();
+                if (message) {
+                    addChatMessage('You', message);
+                    chatInput.value = '';
+                    // TODO: Send message via Socket.IO to other users
+                }
+            }
+
+            sendMessage.addEventListener('click', sendChatMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
+
+            // Genre Filter Functionality
+            const genreFilters = document.querySelectorAll('.genre-filter');
+
+            genreFilters.forEach(filter => {
+                filter.addEventListener('click', () => {
+                    // Remove active state from all filters
+                    genreFilters.forEach(f => {
+                        f.classList.remove('bg-accent', 'text-dark');
+                    });
+                    
+                    // Add active state to clicked filter
+                    filter.classList.add('bg-accent', 'text-dark');
+                    
+                    const genre = filter.getAttribute('data-genre');
+                    // TODO: Filter streams by genre
+                    console.log('Filtering by genre:', genre);
+                });
+            });
+
+            // Escape key functionality
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (!profileModal.classList.contains('hidden')) {
+                        closeProfileModalFunc();
+                    }
+                    if (!streamingModal.classList.contains('hidden')) {
+                        closeStreamingModalFunc();
+                    }
+                }
+            });
+
+        })();
+    </script>
+</body>
+</html>
